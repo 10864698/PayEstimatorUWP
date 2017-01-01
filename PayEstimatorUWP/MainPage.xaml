@@ -7,7 +7,51 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <StackPanel>
+        <Grid>
+            <ListView Margin="10" x:Name="lvGigs">
+                <!--<ListView.View>-->
+                <GridView>
+                    <GridView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition Width="auto"/>
+                                </Grid.ColumnDefinitions>
 
-    </Grid>
+                                <TextBlock Grid.Column="0" Text="{Binding StartDate}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding StartTime}"/>
+                                <TextBlock Grid.Column="2" Text="{Binding EndTime}"/>
+                                <TextBlock Grid.Column="3" Text="{Binding ClientName}"/>
+                            </Grid>
+                        </DataTemplate>
+                    </GridView.ItemTemplate>
+                </GridView>
+                <!--<GridViewColumn Header="Date" Width="auto" DisplayMemberBinding="{Binding StartDate}" />
+                        <GridViewColumn Header="Start" Width="auto" DisplayMemberBinding="{Binding StartTime}" />
+                        <GridViewColumn Header="Finish" Width="auto" DisplayMemberBinding="{Binding EndTime}" />
+                        <GridViewColumn Header="Client" Width="auto" DisplayMemberBinding="{Binding ClientName}" />
+                        <GridViewColumn Header="Venue" Width="auto" DisplayMemberBinding="{Binding VenueName}" />
+                        <GridViewColumn Header="Skill" Width="auto" DisplayMemberBinding="{Binding Skill}" />
+                        <GridViewColumn Header="Hours" Width="auto"  DisplayMemberBinding="{Binding Hours}" />
+                    </GridView>-->
+                <!--</ListView.View>-->
+            </ListView>
+        </Grid>
+        <ListView Margin="10" x:Name="lvHours">
+            <TextBlock>
+                <Run Text="Total Hours: "/>
+                <Run Text="{Binding Path=TotalHours}"/>
+            </TextBlock>
+        </ListView>
+        <ListView Margin="10" x:Name="lvGross">
+            <TextBlock>
+            <Run Text="Gross Amount: "/>
+            <Run Text="{Binding Path=GrossAmount}"/>
+            </TextBlock>
+        </ListView>
+    </StackPanel>
 </Page>
