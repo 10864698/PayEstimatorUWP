@@ -27,11 +27,21 @@ namespace PayEstimatorUWP
     /// </summary>
     public sealed partial class MainPage : Page
     {
+        List<Gig> gigs = new List<Gig>();
         public MainPage()
         {
             Initialize();
             InitializeComponent();
-            Test test = new Test();
+
+            lvGigs.ItemsSource = gigs;
+
+            Hours hours = new Hours(gigs);
+            tbHours.DataContext = hours;
+
+            Gross gross = new Gross(gigs);
+            tbGross.DataContext = gross;
+
+            Test test = new Test(gigs);
             tbTest.DataContext = test;
 
         }
@@ -43,49 +53,44 @@ namespace PayEstimatorUWP
 
         public async void GigsLastWeek()
         {
-            AppointmentStore appointmentStore = await AppointmentManager.RequestStoreAsync(AppointmentStoreAccessType.AllCalendarsReadOnly);
+            AppointmentStore appointmentStore = await AppointmentManager.RequestStoreAsync(AppointmentStoreAccessType.AppCalendarsReadWrite);
 
-            //DayOfWeek weekStart = DayOfWeek.Monday;
-            //DateTime startingDate = DateTime.Today;
+            DayOfWeek weekStart = DayOfWeek.Monday;
+            DateTime startingDate = DateTime.Today;
 
-            //while (startingDate.DayOfWeek != weekStart)
-            //    startingDate = startingDate.AddDays(-1);
+            while (startingDate.DayOfWeek != weekStart)
+                startingDate = startingDate.AddDays(-1);
 
-            //DateTime previousWeekStart = startingDate.AddDays(-7);
-            //DateTime previousWeekEnd = startingDate.AddDays(0);
+            DateTime previousWeekStart = startingDate.AddDays(-7);
+            DateTime previousWeekEnd = startingDate.AddDays(0);
 
-            //var appCalendars = await appointmentStore.FindAppointmentsAsync(previousWeekStart, TimeSpan.FromDays(7));
+            var appCalendars = await appointmentStore.FindAppointmentsAsync(previousWeekStart, TimeSpan.FromDays(7));
 
-            //if (appCalendars != null)
-            //{
-            //    List<Gig> gigs = new List<Gig>();
+            gigs.Add(new Gig(DateTimeOffset.Now, TimeSpan.FromHours(3), "Test", "Test", "LEVEL3"));
 
-            //    foreach (var appt in appCalendars)
-            //    {
-            //        try
-            //        {
-            //            if (appt.Details.Substring(0, 18) == "CrewOnCall::LEVEL3")
-            //                gigs.Add(new Gig(appt.StartTime, appt.Duration, appt.Subject, appt.Location, "LEVEL3"));
-            //            else if (appt.Details.Substring(0, 18) == "CrewOnCall::VANDVR")
-            //                gigs.Add(new Gig(appt.StartTime, appt.Duration, appt.Subject, appt.Location, "VANDVR"));
-            //            else if (appt.Details.Substring(0, 17) == "CrewOnCall::MR/HR")
-            //                gigs.Add(new Gig(appt.StartTime, appt.Duration, appt.Subject, appt.Location, "MR/HR"));
-            //            else
-            //                gigs.Add(new Gig(appt.StartTime, appt.Duration, appt.Subject, appt.Location, "LEVEL3"));
-            //        }
-            //        catch (ArgumentOutOfRangeException)
-            //        {
-            //            gigs.Add(new Gig(appt.StartTime, appt.Duration, appt.Subject, appt.Location, "LEVEL3"));
-            //        }
-            //    }
+            if (appCalendars != null)
+            {
+                foreach (var appt in appCalendars)
+                {
+                    try
+                    {
+                        if (appt.Details.Substring(0, 18) == "CrewOnCall::LEVEL3")
+                            gigs.Add(new Gig(appt.StartTime, appt.Duration, appt.Subject, appt.Location, "LEVEL3"));
+                        else if (appt.Details.Substring(0, 18) == "CrewOnCall::VANDVR")
+                            gigs.Add(new Gig(appt.StartTime, appt.Duration, appt.Subject, appt.Location, "VANDVR"));
+                        else if (appt.Details.Substring(0, 17) == "CrewOnCall::MR/HR")
+                            gigs.Add(new Gig(appt.StartTime, appt.Duration, appt.Subject, appt.Location, "MR/HR"));
+                        else
+                            gigs.Add(new Gig(appt.StartTime, appt.Duration, appt.Subject, appt.Location, "LEVEL3"));
+                    }
+                    catch (ArgumentOutOfRangeException)
+                    {
+                        gigs.Add(new Gig(appt.StartTime, appt.Duration, appt.Subject, appt.Location, "LEVEL3"));
+                    }
+                }
 
-            //    lvGigs.ItemsSource = gigs;
-
-            //    Hours hours = new Hours(gigs);
-            //    tbHours.DataContext = hours;
-
-            //    Gross gross = new Gross(gigs);
-            //    tbGross.DataContext = gross;
+                
+            }
         }
     }
 
@@ -108,7 +113,7 @@ namespace PayEstimatorUWP
         public double MRHRB { get; set; }
         public double MRHRSUN { get; set; }
 
-        public Gig(DateTimeOffset startTime, TimeSpan duration, string subject, string location, string v)
+        public Gig(DateTimeOffset startTime, TimeSpan duration, string subject, string location, string skill)
         {
             StartDate = startTime.ToString("D");
             StartTime = startTime.ToString("t");
@@ -116,7 +121,7 @@ namespace PayEstimatorUWP
             ClientName = subject;
             VenueName = location;
             Hours = 0;
-            Skill = v;
+            Skill = skill;
             LEVEL3A = 0;
             LEVEL3B = 0;
             LEVEL3SUN = 0;
@@ -149,31 +154,31 @@ namespace PayEstimatorUWP
                 if ((calcHours.Hour > 7) && (calcHours.Hour < 20) && (calcHours.DayOfWeek != DayOfWeek.Sunday))
                 {
                     Hours += 0.25;
-                    if ((v == null) || (v == "LEVEL3"))
+                    if ((Skill == null) || (Skill == "LEVEL3"))
                         LEVEL3A += 0.25;
-                    if (v == "VANDVR")
+                    if (Skill == "VANDVR")
                         VANDVRA += 0.25;
-                    if (v == "MR/HR")
+                    if (Skill == "MR/HR")
                         MRHRA += 0.25;
                 }
                 if (((calcHours.Hour < 8) || (calcHours.Hour > 19)) && (calcHours.DayOfWeek != DayOfWeek.Sunday))
                 {
                     Hours += 0.25;
-                    if ((v == null) || (v == "LEVEL3"))
+                    if ((Skill == null) || (Skill == "LEVEL3"))
                         LEVEL3B += 0.25;
-                    if (v == "VANDVR")
+                    if (Skill == "VANDVR")
                         VANDVRB += 0.25;
-                    if (v == "MR/HR")
+                    if (Skill == "MR/HR")
                         MRHRB += 0.25;
                 }
                 if (calcHours.DayOfWeek == DayOfWeek.Sunday)
                 {
                     Hours += 0.25;
-                    if ((v == null) || (v == "LEVEL3"))
+                    if ((Skill == null) || (Skill == "LEVEL3"))
                         LEVEL3SUN += 0.25;
-                    if (v == "VANDVR")
+                    if (Skill == "VANDVR")
                         VANDVRSUN += 0.25;
-                    if (v == "MR/HR")
+                    if (Skill == "MR/HR")
                         MRHRSUN += 0.25;
                 }
                 calcHours = calcHours.AddMinutes(15);
@@ -202,9 +207,9 @@ namespace PayEstimatorUWP
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
         }
 
-        public Test()
+        public Test(List<Gig> gigs)
         {
-            TotalTest = 0.01;
+            TotalTest = gigs.Count();
         }
     }
 
@@ -324,4 +329,5 @@ namespace PayEstimatorUWP
         }
     }
 }
+
 

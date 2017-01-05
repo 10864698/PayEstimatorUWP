@@ -19,11 +19,15 @@
             <RowDefinition Height="auto"></RowDefinition>
         </Grid.RowDefinitions>
         <ListView Grid.Row="0" x:Name="lvGigs">
-            <TextBlock>
-            <Run Text="Gigs: "/>
-            </TextBlock>
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding Path=StartTime}"/>
+                        <TextBlock Text="{Binding Path=StartDate}"/>
+                        </StackPanel>
+                </DataTemplate>
+            </ListView.ItemTemplate>
         </ListView>
-
         <TextBlock Grid.Row="1" x:Name="tbHours">
             <Run Text="Total Hours: "/>
             <Run Text="{Binding Path=TotalHours, Converter={StaticResource DoubleToStringConverter}}"/>
