@@ -28,6 +28,7 @@ namespace PayEstimatorUWP
     public sealed partial class MainPage : Page
     {
         List<Gig> gigs = new List<Gig>();
+
         public MainPage()
         {
             Initialize();
@@ -43,7 +44,6 @@ namespace PayEstimatorUWP
 
             Test test = new Test(gigs);
             tbTest.DataContext = test;
-
         }
 
         public void Initialize()
@@ -53,47 +53,53 @@ namespace PayEstimatorUWP
 
         public async void GigsLastWeek()
         {
-            AppointmentStore appointmentStore = await AppointmentManager.RequestStoreAsync(AppointmentStoreAccessType.AppCalendarsReadWrite);
+            gigs.Add(new Gig(DateTimeOffset.Now, TimeSpan.FromHours(3), "Test", "Test", "LEVEL3"));
+            gigs.Add(new Gig(DateTimeOffset.Now.AddHours(8), TimeSpan.FromHours(3), "Test", "Test", "LEVEL3"));
 
-            DayOfWeek weekStart = DayOfWeek.Monday;
-            DateTime startingDate = DateTime.Today;
+            var appointmentStore = await AppointmentManager.RequestStoreAsync(AppointmentStoreAccessType.AllCalendarsReadOnly);
+
+            gigs.Add(new Gig(DateTimeOffset.Now.AddHours(12), TimeSpan.FromHours(3), "Test", "Test", "LEVEL3"));
+
+            var timeZoneOffset = TimeZoneInfo.Local.GetUtcOffset(DateTime.Now);
+            var weekStart = DayOfWeek.Monday;
+            var startingDate = new DateTimeOffset(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0, timeZoneOffset);
 
             while (startingDate.DayOfWeek != weekStart)
                 startingDate = startingDate.AddDays(-1);
 
-            DateTime previousWeekStart = startingDate.AddDays(-7);
-            DateTime previousWeekEnd = startingDate.AddDays(0);
+            var previousWeekStart = startingDate.AddDays(-7);
 
-            var appCalendars = await appointmentStore.FindAppointmentsAsync(previousWeekStart, TimeSpan.FromDays(7));
+            var options = new FindAppointmentsOptions();
+            options.FetchProperties.Add(AppointmentProperties.StartTime);
+            options.FetchProperties.Add(AppointmentProperties.Duration);
+            options.FetchProperties.Add(AppointmentProperties.Subject);
+            options.FetchProperties.Add(AppointmentProperties.Location);
+            options.FetchProperties.Add(AppointmentProperties.Details);
 
-            gigs.Add(new Gig(DateTimeOffset.Now, TimeSpan.FromHours(3), "Test", "Test", "LEVEL3"));
+            var appCalendars = await appointmentStore.FindAppointmentsAsync(previousWeekStart, TimeSpan.FromDays(7), options);
 
-            if (appCalendars != null)
+            foreach (var appt in appCalendars)
             {
-                foreach (var appt in appCalendars)
-                {
-                    try
-                    {
-                        if (appt.Details.Substring(0, 18) == "CrewOnCall::LEVEL3")
-                            gigs.Add(new Gig(appt.StartTime, appt.Duration, appt.Subject, appt.Location, "LEVEL3"));
-                        else if (appt.Details.Substring(0, 18) == "CrewOnCall::VANDVR")
-                            gigs.Add(new Gig(appt.StartTime, appt.Duration, appt.Subject, appt.Location, "VANDVR"));
-                        else if (appt.Details.Substring(0, 17) == "CrewOnCall::MR/HR")
-                            gigs.Add(new Gig(appt.StartTime, appt.Duration, appt.Subject, appt.Location, "MR/HR"));
-                        else
-                            gigs.Add(new Gig(appt.StartTime, appt.Duration, appt.Subject, appt.Location, "LEVEL3"));
-                    }
-                    catch (ArgumentOutOfRangeException)
-                    {
-                        gigs.Add(new Gig(appt.StartTime, appt.Duration, appt.Subject, appt.Location, "LEVEL3"));
-                    }
-                }
+                gigs.Add(new Gig(DateTimeOffset.Now.AddHours(12), TimeSpan.FromHours(3), "Test", "Test", "LEVEL3"));
 
-                
+                try
+                {
+                    if (appt.Details.Substring(0, 18) == "CrewOnCall::LEVEL3")
+                        gigs.Add(new Gig(appt.StartTime, appt.Duration, appt.Subject, appt.Location, "LEVEL3"));
+                    else if (appt.Details.Substring(0, 18) == "CrewOnCall::VANDVR")
+                        gigs.Add(new Gig(appt.StartTime, appt.Duration, appt.Subject, appt.Location, "VANDVR"));
+                    else if (appt.Details.Substring(0, 17) == "CrewOnCall::MR/HR")
+                        gigs.Add(new Gig(appt.StartTime, appt.Duration, appt.Subject, appt.Location, "MR/HR"));
+                    else
+                        gigs.Add(new Gig(appt.StartTime, appt.Duration, appt.Subject, appt.Location, "LEVEL3"));
+                }
+                catch (ArgumentOutOfRangeException)
+                {
+                    gigs.Add(new Gig(appt.StartTime, appt.Duration, appt.Subject, appt.Location, "LEVEL3"));
+                }
             }
         }
     }
-
     public class Gig
     {
         public string StartDate { get; set; }
@@ -329,5 +335,4 @@ namespace PayEstimatorUWP
         }
     }
 }
-
 
