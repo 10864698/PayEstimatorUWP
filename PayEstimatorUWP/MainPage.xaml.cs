@@ -1,49 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.ApplicationModel.Appointments;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
-using Outlook = Windows.ApplicationModel.Appointments;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
 namespace PayEstimatorUWP
 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
     public sealed partial class MainPage : Page
     {
-        List<Gig> gigs = new List<Gig>();
-
         public MainPage()
         {
             Initialize();
             InitializeComponent();
-
-            lvGigs.ItemsSource = gigs;
-
-            Hours hours = new Hours(gigs);
-            tbHours.DataContext = hours;
-
-            Gross gross = new Gross(gigs);
-            tbGross.DataContext = gross;
-
-            Test test = new Test(gigs);
-            tbTest.DataContext = test;
         }
 
         public void Initialize()
@@ -53,12 +26,7 @@ namespace PayEstimatorUWP
 
         public async void GigsLastWeek()
         {
-            gigs.Add(new Gig(DateTimeOffset.Now, TimeSpan.FromHours(3), "Test", "Test", "LEVEL3"));
-            gigs.Add(new Gig(DateTimeOffset.Now.AddHours(8), TimeSpan.FromHours(3), "Test", "Test", "LEVEL3"));
-
             var appointmentStore = await AppointmentManager.RequestStoreAsync(AppointmentStoreAccessType.AllCalendarsReadOnly);
-
-            gigs.Add(new Gig(DateTimeOffset.Now.AddHours(12), TimeSpan.FromHours(3), "Test", "Test", "LEVEL3"));
 
             var timeZoneOffset = TimeZoneInfo.Local.GetUtcOffset(DateTime.Now);
             var weekStart = DayOfWeek.Monday;
@@ -67,7 +35,9 @@ namespace PayEstimatorUWP
             while (startingDate.DayOfWeek != weekStart)
                 startingDate = startingDate.AddDays(-1);
 
-            var previousWeekStart = startingDate.AddDays(-7);
+            //var previousWeekStart = startingDate.AddDays(-7);
+            //debug
+            var previousWeekStart = startingDate.AddDays(0);
 
             var options = new FindAppointmentsOptions();
             options.FetchProperties.Add(AppointmentProperties.StartTime);
@@ -78,25 +48,58 @@ namespace PayEstimatorUWP
 
             var appCalendars = await appointmentStore.FindAppointmentsAsync(previousWeekStart, TimeSpan.FromDays(7), options);
 
-            foreach (var appt in appCalendars)
+            if (appCalendars.Count > 0)
             {
-                gigs.Add(new Gig(DateTimeOffset.Now.AddHours(12), TimeSpan.FromHours(3), "Test", "Test", "LEVEL3"));
+                List<Gig> gigs = new List<Gig>();
 
-                try
+                foreach (var appt in appCalendars)
                 {
-                    if (appt.Details.Substring(0, 18) == "CrewOnCall::LEVEL3")
+                    try
+                    {
+                        if (appt.Details.Substring(0, 18) == "CrewOnCall::LEVEL3")
+                            gigs.Add(new Gig(appt.StartTime, appt.Duration, appt.Subject, appt.Location, "LEVEL3"));
+                        else if (appt.Details.Substring(0, 18) == "CrewOnCall::VANDVR")
+                            gigs.Add(new Gig(appt.StartTime, appt.Duration, appt.Subject, appt.Location, "VANDVR"));
+                        else if (appt.Details.Substring(0, 17) == "CrewOnCall::MR/HR")
+                            gigs.Add(new Gig(appt.StartTime, appt.Duration, appt.Subject, appt.Location, "MR/HR"));
+                        else
+                            gigs.Add(new Gig(appt.StartTime, appt.Duration, appt.Subject, appt.Location, "LEVEL3"));
+                    }
+                    catch (ArgumentOutOfRangeException)
+                    {
                         gigs.Add(new Gig(appt.StartTime, appt.Duration, appt.Subject, appt.Location, "LEVEL3"));
-                    else if (appt.Details.Substring(0, 18) == "CrewOnCall::VANDVR")
-                        gigs.Add(new Gig(appt.StartTime, appt.Duration, appt.Subject, appt.Location, "VANDVR"));
-                    else if (appt.Details.Substring(0, 17) == "CrewOnCall::MR/HR")
-                        gigs.Add(new Gig(appt.StartTime, appt.Duration, appt.Subject, appt.Location, "MR/HR"));
-                    else
-                        gigs.Add(new Gig(appt.StartTime, appt.Duration, appt.Subject, appt.Location, "LEVEL3"));
+                    }
                 }
-                catch (ArgumentOutOfRangeException)
-                {
-                    gigs.Add(new Gig(appt.StartTime, appt.Duration, appt.Subject, appt.Location, "LEVEL3"));
-                }
+
+                lvGigs.ItemsSource = gigs;
+
+                Hours hours = new Hours(gigs);
+                tbHours.DataContext = hours;
+
+                Gross gross = new Gross(gigs);
+                tbGross.DataContext = gross;
+
+                Test test = new Test(gigs);
+                tbTest.DataContext = test;
+            }
+            else
+            {
+                //debugging
+
+                List<Gig> gigs = new List<Gig>();
+                gigs.Add(new Gig(DateTimeOffset.Now, TimeSpan.FromHours(3), "Test", "Test", "LEVEL3"));
+
+                lvGigs.ItemsSource = gigs;
+
+                Hours hours = new Hours(gigs);
+                tbHours.DataContext = hours;
+
+                Gross gross = new Gross(gigs);
+                tbGross.DataContext = gross;
+
+                Test test = new Test(gigs);
+                tbTest.DataContext = test;
+
             }
         }
     }
@@ -215,7 +218,7 @@ namespace PayEstimatorUWP
 
         public Test(List<Gig> gigs)
         {
-            TotalTest = gigs.Count();
+            TotalTest = gigs.Count;
         }
     }
 
