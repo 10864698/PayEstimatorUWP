@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
-using System.Linq;
 using Windows.ApplicationModel.Appointments;
+using Windows.UI.Popups;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
 
@@ -26,49 +26,73 @@ namespace PayEstimatorUWP
 
         public async void GigsLastWeek()
         {
-            var appointmentStore = await AppointmentManager.RequestStoreAsync(AppointmentStoreAccessType.AllCalendarsReadOnly);
+            AppointmentStore appointmentStore = await AppointmentManager.RequestStoreAsync(AppointmentStoreAccessType.AllCalendarsReadOnly);
 
-            var timeZoneOffset = TimeZoneInfo.Local.GetUtcOffset(DateTime.Now);
-            var weekStart = DayOfWeek.Monday;
-            var startingDate = new DateTimeOffset(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0, timeZoneOffset);
+            DayOfWeek weekStart = DayOfWeek.Monday;
+            DateTimeOffset startingDate = DateTimeOffset.Now;
 
             while (startingDate.DayOfWeek != weekStart)
                 startingDate = startingDate.AddDays(-1);
 
-            //var previousWeekStart = startingDate.AddDays(-7);
-            //debug
-            var previousWeekStart = startingDate.AddDays(0);
+            DateTimeOffset previousWeekStart = startingDate.AddDays(0);
 
-            var options = new FindAppointmentsOptions();
-            options.FetchProperties.Add(AppointmentProperties.StartTime);
-            options.FetchProperties.Add(AppointmentProperties.Duration);
+            var date = previousWeekStart;
+            var timeZoneOffset = TimeZoneInfo.Local.GetUtcOffset(DateTime.Now);
+            var startTime = new DateTimeOffset(date.Year, date.Month, date.Day, 0, 0, 0, timeZoneOffset);
+
+            TimeSpan duration = TimeSpan.FromDays(7);
+
+            FindAppointmentsOptions options = new FindAppointmentsOptions();
+            options.MaxCount = 100;
             options.FetchProperties.Add(AppointmentProperties.Subject);
             options.FetchProperties.Add(AppointmentProperties.Location);
+            options.FetchProperties.Add(AppointmentProperties.AllDay);
+            options.FetchProperties.Add(AppointmentProperties.StartTime);
+            options.FetchProperties.Add(AppointmentProperties.Duration);
             options.FetchProperties.Add(AppointmentProperties.Details);
+            options.FetchProperties.Add(AppointmentProperties.DetailsKind);
 
-            var appCalendars = await appointmentStore.FindAppointmentsAsync(previousWeekStart, TimeSpan.FromDays(7), options);
+            IReadOnlyList<Appointment> appointments = await appointmentStore.FindAppointmentsAsync(startTime, duration, options);
 
-            if (appCalendars.Count > 0)
+            //debug
+            var ct = new MessageDialog(appointments.Count.ToString());
+            await ct.ShowAsync();
+
+            //debug
+            var dk = new MessageDialog(appointments[0].DetailsKind.ToString());
+            await dk.ShowAsync();
+
+            if (appointments.Count > 0)
             {
                 List<Gig> gigs = new List<Gig>();
 
-                foreach (var appt in appCalendars)
+                var i = 0;
+
+                while (i < appointments.Count)
                 {
-                    try
+                    if (!appointments[i].AllDay)
                     {
-                        if (appt.Details.Substring(0, 18) == "CrewOnCall::LEVEL3")
-                            gigs.Add(new Gig(appt.StartTime, appt.Duration, appt.Subject, appt.Location, "LEVEL3"));
-                        else if (appt.Details.Substring(0, 18) == "CrewOnCall::VANDVR")
-                            gigs.Add(new Gig(appt.StartTime, appt.Duration, appt.Subject, appt.Location, "VANDVR"));
-                        else if (appt.Details.Substring(0, 17) == "CrewOnCall::MR/HR")
-                            gigs.Add(new Gig(appt.StartTime, appt.Duration, appt.Subject, appt.Location, "MR/HR"));
-                        else
-                            gigs.Add(new Gig(appt.StartTime, appt.Duration, appt.Subject, appt.Location, "LEVEL3"));
+                        //debug
+                        var d = new MessageDialog(appointments[i].Details.ToString());
+                        await d.ShowAsync();
+
+                        try
+                        {
+                            if (appointments[i].Details.Substring(0, 18) == "CrewOnCall::LEVEL3")
+                                gigs.Add(new Gig(appointments[i].StartTime, appointments[i].Duration, appointments[i].Subject, appointments[i].Location, "LEVEL3"));
+                            else if (appointments[i].Details.Substring(0, 18) == "CrewOnCall::VANDVR")
+                                gigs.Add(new Gig(appointments[i].StartTime, appointments[i].Duration, appointments[i].Subject, appointments[i].Location, "VANDVR"));
+                            else if (appointments[i].Details.Substring(0, 17) == "CrewOnCall::MR/HR")
+                                gigs.Add(new Gig(appointments[i].StartTime, appointments[i].Duration, appointments[i].Subject, appointments[i].Location, "MR/HR"));
+                            else
+                                gigs.Add(new Gig(appointments[i].StartTime, appointments[i].Duration, appointments[i].Subject, appointments[i].Location, "LEVEL3"));
+                        }
+                        catch (ArgumentOutOfRangeException)
+                        {
+                            gigs.Add(new Gig(appointments[i].StartTime, appointments[i].Duration, "Test", appointments[i].Location, "LEVEL3"));
+                        }
                     }
-                    catch (ArgumentOutOfRangeException)
-                    {
-                        gigs.Add(new Gig(appt.StartTime, appt.Duration, appt.Subject, appt.Location, "LEVEL3"));
-                    }
+                    i++;
                 }
 
                 lvGigs.ItemsSource = gigs;
