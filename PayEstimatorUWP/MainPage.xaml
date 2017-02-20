@@ -12,91 +12,112 @@
         <local:DoubleToStringConverter x:Key="DoubleToStringConverter" />
     </Page.Resources>
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="auto"></RowDefinition>
-            <RowDefinition Height="auto"></RowDefinition>
-            <RowDefinition Height="auto"></RowDefinition>
-            <RowDefinition Height="auto"></RowDefinition>
-        </Grid.RowDefinitions>
+    <Pivot x:Name="rootPivot" Title="Pay Estimater">
+        <PivotItem Header="Current Pay">
 
-        <ListView x:Name="lvGigs">
+            <ScrollViewer HorizontalScrollMode="Enabled" HorizontalScrollBarVisibility="Visible">
 
-            <ListView.HeaderTemplate>
-                <DataTemplate>
-                    <Grid  Background="Gray">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="2.5*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="Date"/>
-                        <TextBlock Grid.Column="1" Text="Start"/>
-                        <TextBlock Grid.Column="2" Text="End"/>
-                        <TextBlock Grid.Column="3" Text="Client"/>
-                        <TextBlock Grid.Column="4" Text="Venue"/>
-                        <TextBlock Grid.Column="5" Text="Hours"/>
-                        <TextBlock Grid.Column="6" Text="Skill"/>
-                    </Grid>
-                </DataTemplate>
-            </ListView.HeaderTemplate>
+                <StackPanel Orientation="Vertical">
 
-            <ListView.ItemContainerStyle>
-                <Style TargetType="ListViewItem">
-                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                </Style>
-            </ListView.ItemContainerStyle>
+                    <TextBlock x:Name="tbGross">
+                <Run Text="Gross Amount: $"/>
+                <Run Text="{Binding Path=GrossAmount, Converter={StaticResource DoubleToStringConverter}}"/>
+                    </TextBlock>
 
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="2.5*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="{Binding StartDate}"/>
-                        <TextBlock Grid.Column="1" Text="{Binding StartTime}"/>
-                        <TextBlock Grid.Column="2" Text="{Binding EndTime}"/>
-                        <TextBlock Grid.Column="3" Text="{Binding ClientName}"/>
-                        <TextBlock Grid.Column="4" Text="{Binding VenueName}"/>
-                        <TextBlock Grid.Column="5" Text="{Binding Hours}"/>
-                        <TextBlock Grid.Column="6" Text="{Binding Skill}"/>
-                    </Grid>
-                </DataTemplate>
-            </ListView.ItemTemplate>
+                    <TextBlock x:Name="tbShifts">
+                <Run Text="Shifts: "/>
+                <Run Text="{Binding Path=TotalShifts, Converter={StaticResource DoubleToStringConverter}}"/>
+                    </TextBlock>
 
-        </ListView>
+                    <TextBlock x:Name="tbHours">
+                <Run Text="Total Hours: "/>
+                <Run Text="{Binding Path=TotalHours, Converter={StaticResource DoubleToStringConverter}}"/>
+                    </TextBlock>
 
-        <TextBlock Grid.Row="1" x:Name="tbHours">
-      <Run Text="Total Hours: "/>
-      <Run Text="{Binding Path=TotalHours, Converter={StaticResource DoubleToStringConverter}}"/>
-        </TextBlock>
+                    <ListView x:Name="lvGigs" ItemsSource="{Binding gigs, Mode=OneWay}">
 
-        <TextBlock Grid.Row="2" x:Name="tbGross">
-      <Run Text="Gross Amount: "/>
-      <Run Text="{Binding Path=GrossAmount, Converter={StaticResource DoubleToStringConverter}}"/>
-        </TextBlock>
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="HorizontalAlignment" Value="Stretch" />
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
 
-        <TextBlock Grid.Row="3" x:Name="tbTest">
-      <Run Text="Test Amount: "/>
-      <Run Text="{Binding Path=TotalTest, Converter={StaticResource DoubleToStringConverter}}"/>
-        </TextBlock>
-    </Grid>
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Vertical" Margin="0" BorderBrush="LightSkyBlue" BorderThickness="0,0,0,2" Padding="5,5,5,5">
+                                    <TextBlock Text="{Binding StartDate}"/>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding StartTime}"/>
+                                        <TextBlock Text="-"/>
+                                        <TextBlock Text="{Binding EndTime}"/>
+                                        <TextBlock Text=" ("/>
+                                        <TextBlock Text="{Binding Hours}"/>
+                                        <TextBlock Text=" Hrs)"/>
+                                    </StackPanel>
+                                    <TextBlock Text="{Binding ClientName}"/>
+                                    <TextBlock Text="{Binding VenueName}"/>
+                                    <TextBlock Text="{Binding Skill}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+
+                    </ListView>
+                </StackPanel>
+            </ScrollViewer>
+        </PivotItem>
+
+        <PivotItem Header="Next Pay">
+            <ScrollViewer HorizontalScrollMode="Enabled" HorizontalScrollBarVisibility="Visible">
+
+                <StackPanel Orientation="Vertical">
+
+                    <TextBlock x:Name="tbnextGross">
+                <Run Text="Gross Amount: $"/>
+                <Run Text="{Binding Path=GrossAmount, Converter={StaticResource DoubleToStringConverter}}"/>
+                    </TextBlock>
+
+                    <TextBlock x:Name="tbnextShifts">
+                <Run Text="Shifts: "/>
+                <Run Text="{Binding Path=TotalShifts, Converter={StaticResource DoubleToStringConverter}}"/>
+                    </TextBlock>
+
+                    <TextBlock x:Name="tbnextHours">
+                <Run Text="Total Hours: "/>
+                <Run Text="{Binding Path=TotalHours, Converter={StaticResource DoubleToStringConverter}}"/>
+                    </TextBlock>
+
+                    <ListView x:Name="lvnextGigs" ItemsSource="{Binding gigs, Mode=OneWay}">
+
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="HorizontalAlignment" Value="Stretch" />
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
+
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Vertical" Margin="0" BorderBrush="LightSkyBlue" BorderThickness="0,0,0,2" Padding="5,5,5,5">
+                                    <TextBlock Text="{Binding StartDate}"/>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding StartTime}"/>
+                                        <TextBlock Text="-"/>
+                                        <TextBlock Text="{Binding EndTime}"/>
+                                        <TextBlock Text=" ("/>
+                                        <TextBlock Text="{Binding Hours}"/>
+                                        <TextBlock Text=" Hrs)"/>
+                                    </StackPanel>
+                                    <TextBlock Text="{Binding ClientName}"/>
+                                    <TextBlock Text="{Binding VenueName}"/>
+                                    <TextBlock Text="{Binding Skill}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+
+                    </ListView>
+                </StackPanel>
+            </ScrollViewer>
+        </PivotItem>
+    </Pivot>
 </Page>

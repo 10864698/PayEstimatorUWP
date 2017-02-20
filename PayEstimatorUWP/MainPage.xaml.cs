@@ -21,10 +21,11 @@ namespace PayEstimatorUWP
 
         public void Initialize()
         {
-            GigsLastWeek();
+            GigsThisPay();
+            GigsNextPay();
         }
 
-        public async void GigsLastWeek()
+        public async void GigsThisPay()
         {
             AppointmentStore appointmentStore = await AppointmentManager.RequestStoreAsync(AppointmentStoreAccessType.AllCalendarsReadOnly);
 
@@ -34,9 +35,9 @@ namespace PayEstimatorUWP
             while (startingDate.DayOfWeek != weekStart)
                 startingDate = startingDate.AddDays(-1);
 
-            DateTimeOffset previousWeekStart = startingDate.AddDays(0);
+            DateTimeOffset currentPayStart = startingDate.AddDays(-14);
 
-            var date = previousWeekStart;
+            var date = currentPayStart;
             var timeZoneOffset = TimeZoneInfo.Local.GetUtcOffset(DateTime.Now);
             var startTime = new DateTimeOffset(date.Year, date.Month, date.Day, 0, 0, 0, timeZoneOffset);
 
@@ -54,17 +55,17 @@ namespace PayEstimatorUWP
 
             IReadOnlyList<Appointment> appointments = await appointmentStore.FindAppointmentsAsync(startTime, duration, options);
 
-            //debug
-            var ct = new MessageDialog(appointments.Count.ToString());
-            await ct.ShowAsync();
+            ////debug
+            //var ct = new MessageDialog(appointments.Count.ToString());
+            //await ct.ShowAsync();
 
-            //debug
-            var dk = new MessageDialog(appointments[0].DetailsKind.ToString());
-            await dk.ShowAsync();
+            ////debug
+            //var dk = new MessageDialog(appointments[0].DetailsKind.ToString());
+            //await dk.ShowAsync();
 
             if (appointments.Count > 0)
             {
-                List<Gig> gigs = new List<Gig>();
+                List<Gig> gigsthispay = new List<Gig>();
 
                 var i = 0;
 
@@ -72,61 +73,164 @@ namespace PayEstimatorUWP
                 {
                     if (!appointments[i].AllDay)
                     {
-                        //debug
-                        var d = new MessageDialog(appointments[i].Details.ToString());
-                        await d.ShowAsync();
+                        ////debug
+                        //var d = new MessageDialog(appointments[i].Details.ToString());
+                        //await d.ShowAsync();
 
                         try
                         {
                             if (appointments[i].Details.Substring(0, 18) == "CrewOnCall::LEVEL3")
-                                gigs.Add(new Gig(appointments[i].StartTime, appointments[i].Duration, appointments[i].Subject, appointments[i].Location, "LEVEL3"));
+                                gigsthispay.Add(new Gig(appointments[i].StartTime, appointments[i].Duration, appointments[i].Subject, appointments[i].Location, "LEVEL3"));
                             else if (appointments[i].Details.Substring(0, 18) == "CrewOnCall::VANDVR")
-                                gigs.Add(new Gig(appointments[i].StartTime, appointments[i].Duration, appointments[i].Subject, appointments[i].Location, "VANDVR"));
+                                gigsthispay.Add(new Gig(appointments[i].StartTime, appointments[i].Duration, appointments[i].Subject, appointments[i].Location, "VANDVR"));
                             else if (appointments[i].Details.Substring(0, 17) == "CrewOnCall::MR/HR")
-                                gigs.Add(new Gig(appointments[i].StartTime, appointments[i].Duration, appointments[i].Subject, appointments[i].Location, "MR/HR"));
+                                gigsthispay.Add(new Gig(appointments[i].StartTime, appointments[i].Duration, appointments[i].Subject, appointments[i].Location, "MR/HR"));
                             else
-                                gigs.Add(new Gig(appointments[i].StartTime, appointments[i].Duration, appointments[i].Subject, appointments[i].Location, "LEVEL3"));
+                                gigsthispay.Add(new Gig(appointments[i].StartTime, appointments[i].Duration, appointments[i].Subject, appointments[i].Location, "LEVEL3"));
                         }
                         catch (ArgumentOutOfRangeException)
                         {
-                            gigs.Add(new Gig(appointments[i].StartTime, appointments[i].Duration, "Test", appointments[i].Location, "LEVEL3"));
+                            gigsthispay.Add(new Gig(appointments[i].StartTime, appointments[i].Duration, "Test", appointments[i].Location, "LEVEL3"));
                         }
                     }
                     i++;
                 }
 
-                lvGigs.ItemsSource = gigs;
+                lvGigs.ItemsSource = gigsthispay;
 
-                Hours hours = new Hours(gigs);
+                Hours hours = new Hours(gigsthispay);
                 tbHours.DataContext = hours;
 
-                Gross gross = new Gross(gigs);
+                Gross gross = new Gross(gigsthispay);
                 tbGross.DataContext = gross;
 
-                Test test = new Test(gigs);
-                tbTest.DataContext = test;
+                Shifts shifts = new Shifts(gigsthispay);
+                tbShifts.DataContext = shifts;
             }
             else
             {
-                //debugging
+                //debug
+                List<Gig> gigsthispay = new List<Gig>();
+                gigsthispay.Add(new Gig(DateTimeOffset.Now, TimeSpan.FromHours(3), "Test", "Test", "LEVEL3"));
 
-                List<Gig> gigs = new List<Gig>();
-                gigs.Add(new Gig(DateTimeOffset.Now, TimeSpan.FromHours(3), "Test", "Test", "LEVEL3"));
+                lvGigs.ItemsSource = gigsthispay;
 
-                lvGigs.ItemsSource = gigs;
-
-                Hours hours = new Hours(gigs);
+                Hours hours = new Hours(gigsthispay);
                 tbHours.DataContext = hours;
 
-                Gross gross = new Gross(gigs);
+                Gross gross = new Gross(gigsthispay);
                 tbGross.DataContext = gross;
 
-                Test test = new Test(gigs);
-                tbTest.DataContext = test;
+                Shifts shifts = new Shifts(gigsthispay);
+                tbShifts.DataContext = shifts;
+
+            }
+        }
+
+
+        public async void GigsNextPay()
+        {
+            AppointmentStore appointmentStore = await AppointmentManager.RequestStoreAsync(AppointmentStoreAccessType.AllCalendarsReadOnly);
+
+            DayOfWeek weekStart = DayOfWeek.Monday;
+            DateTimeOffset startingDate = DateTimeOffset.Now;
+
+            while (startingDate.DayOfWeek != weekStart)
+                startingDate = startingDate.AddDays(-1);
+
+            DateTimeOffset nextPayStart = startingDate.AddDays(-7);
+
+            var date = nextPayStart;
+            var timeZoneOffset = TimeZoneInfo.Local.GetUtcOffset(DateTime.Now);
+            var startTime = new DateTimeOffset(date.Year, date.Month, date.Day, 0, 0, 0, timeZoneOffset);
+
+            TimeSpan duration = TimeSpan.FromDays(7);
+
+            FindAppointmentsOptions options = new FindAppointmentsOptions();
+            options.MaxCount = 100;
+            options.FetchProperties.Add(AppointmentProperties.Subject);
+            options.FetchProperties.Add(AppointmentProperties.Location);
+            options.FetchProperties.Add(AppointmentProperties.AllDay);
+            options.FetchProperties.Add(AppointmentProperties.StartTime);
+            options.FetchProperties.Add(AppointmentProperties.Duration);
+            options.FetchProperties.Add(AppointmentProperties.Details);
+            options.FetchProperties.Add(AppointmentProperties.DetailsKind);
+
+            IReadOnlyList<Appointment> appointments = await appointmentStore.FindAppointmentsAsync(startTime, duration, options);
+
+            ////debug
+            //var ct = new MessageDialog(appointments.Count.ToString());
+            //await ct.ShowAsync();
+
+            ////debug
+            //var dk = new MessageDialog(appointments[0].DetailsKind.ToString());
+            //await dk.ShowAsync();
+
+            if (appointments.Count > 0)
+            {
+                List<Gig> gigsnextpay = new List<Gig>();
+
+                var i = 0;
+
+                while (i < appointments.Count)
+                {
+                    if (!appointments[i].AllDay)
+                    {
+                        ////debug
+                        //var d = new MessageDialog(appointments[i].Details.ToString());
+                        //await d.ShowAsync();
+
+                        try
+                        {
+                            if (appointments[i].Details.Substring(0, 18) == "CrewOnCall::LEVEL3")
+                                gigsnextpay.Add(new Gig(appointments[i].StartTime, appointments[i].Duration, appointments[i].Subject, appointments[i].Location, "LEVEL3"));
+                            else if (appointments[i].Details.Substring(0, 18) == "CrewOnCall::VANDVR")
+                                gigsnextpay.Add(new Gig(appointments[i].StartTime, appointments[i].Duration, appointments[i].Subject, appointments[i].Location, "VANDVR"));
+                            else if (appointments[i].Details.Substring(0, 17) == "CrewOnCall::MR/HR")
+                                gigsnextpay.Add(new Gig(appointments[i].StartTime, appointments[i].Duration, appointments[i].Subject, appointments[i].Location, "MR/HR"));
+                            else
+                                gigsnextpay.Add(new Gig(appointments[i].StartTime, appointments[i].Duration, appointments[i].Subject, appointments[i].Location, "LEVEL3"));
+                        }
+                        catch (ArgumentOutOfRangeException)
+                        {
+                            gigsnextpay.Add(new Gig(appointments[i].StartTime, appointments[i].Duration, "Test", appointments[i].Location, "LEVEL3"));
+                        }
+                    }
+                    i++;
+                }
+
+                lvnextGigs.ItemsSource = gigsnextpay;
+
+                Hours hours = new Hours(gigsnextpay);
+                tbnextHours.DataContext = hours;
+
+                Gross gross = new Gross(gigsnextpay);
+                tbnextGross.DataContext = gross;
+
+                Shifts shifts = new Shifts(gigsnextpay);
+                tbnextShifts.DataContext = shifts;
+            }
+            else
+            {
+                //debug
+                List<Gig> gigsthispay = new List<Gig>();
+                gigsthispay.Add(new Gig(DateTimeOffset.Now, TimeSpan.FromHours(3), "Test", "Test", "LEVEL3"));
+
+                lvGigs.ItemsSource = gigsthispay;
+
+                Hours hours = new Hours(gigsthispay);
+                tbHours.DataContext = hours;
+
+                Gross gross = new Gross(gigsthispay);
+                tbGross.DataContext = gross;
+
+                Shifts shifts = new Shifts(gigsthispay);
+                tbShifts.DataContext = shifts;
 
             }
         }
     }
+
     public class Gig
     {
         public string StartDate { get; set; }
@@ -219,16 +323,16 @@ namespace PayEstimatorUWP
         }
     }
 
-    public class Test : INotifyPropertyChanged
+    public class Shifts : INotifyPropertyChanged
     {
-        private double _test;
+        private double _shifts;
 
-        public double TotalTest
+        public double TotalShifts
         {
-            get { return _test; }
+            get { return _shifts; }
             set
             {
-                _test = value;
+                _shifts = value;
                 OnPropertyChanged("TotalHours");
             }
         }
@@ -240,9 +344,9 @@ namespace PayEstimatorUWP
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
         }
 
-        public Test(List<Gig> gigs)
+        public Shifts(List<Gig> gigs)
         {
-            TotalTest = gigs.Count;
+            TotalShifts = gigs.Count;
         }
     }
 
