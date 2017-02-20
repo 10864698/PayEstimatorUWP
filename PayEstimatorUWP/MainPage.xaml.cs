@@ -79,11 +79,11 @@ namespace PayEstimatorUWP
 
                         try
                         {
-                            if (appointments[i].Details.Substring(0, 18) == "CrewOnCall::LEVEL3")
+                            if (appointments[i].Details.Contains("CrewOnCall::LEVEL3"))
                                 gigsthispay.Add(new Gig(appointments[i].StartTime, appointments[i].Duration, appointments[i].Subject, appointments[i].Location, "LEVEL3"));
-                            else if (appointments[i].Details.Substring(0, 18) == "CrewOnCall::VANDVR")
+                            else if (appointments[i].Details.Contains("CrewOnCall::VANDVR"))
                                 gigsthispay.Add(new Gig(appointments[i].StartTime, appointments[i].Duration, appointments[i].Subject, appointments[i].Location, "VANDVR"));
-                            else if (appointments[i].Details.Substring(0, 17) == "CrewOnCall::MR/HR")
+                            else if (appointments[i].Details.Contains("CrewOnCall::MR/HR"))
                                 gigsthispay.Add(new Gig(appointments[i].StartTime, appointments[i].Duration, appointments[i].Subject, appointments[i].Location, "MR/HR"));
                             else
                                 gigsthispay.Add(new Gig(appointments[i].StartTime, appointments[i].Duration, appointments[i].Subject, appointments[i].Location, "LEVEL3"));
@@ -182,11 +182,11 @@ namespace PayEstimatorUWP
 
                         try
                         {
-                            if (appointments[i].Details.Substring(0, 18) == "CrewOnCall::LEVEL3")
+                            if (appointments[i].Details.Contains("CrewOnCall::LEVEL3"))
                                 gigsnextpay.Add(new Gig(appointments[i].StartTime, appointments[i].Duration, appointments[i].Subject, appointments[i].Location, "LEVEL3"));
-                            else if (appointments[i].Details.Substring(0, 18) == "CrewOnCall::VANDVR")
+                            else if (appointments[i].Details.Contains("CrewOnCall::VANDVR"))
                                 gigsnextpay.Add(new Gig(appointments[i].StartTime, appointments[i].Duration, appointments[i].Subject, appointments[i].Location, "VANDVR"));
-                            else if (appointments[i].Details.Substring(0, 17) == "CrewOnCall::MR/HR")
+                            else if (appointments[i].Details.Contains("CrewOnCall::MR/HR"))
                                 gigsnextpay.Add(new Gig(appointments[i].StartTime, appointments[i].Duration, appointments[i].Subject, appointments[i].Location, "MR/HR"));
                             else
                                 gigsnextpay.Add(new Gig(appointments[i].StartTime, appointments[i].Duration, appointments[i].Subject, appointments[i].Location, "LEVEL3"));
