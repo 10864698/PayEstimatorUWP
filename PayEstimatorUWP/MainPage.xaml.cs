@@ -104,6 +104,9 @@ namespace PayEstimatorUWP
                 Gross gross = new Gross(gigsthispay);
                 tbGross.DataContext = gross;
 
+                Net net = new Net(gross.GrossAmount);
+                tbNet.DataContext = net;
+
                 Shifts shifts = new Shifts(gigsthispay);
                 tbShifts.DataContext = shifts;
             }
@@ -120,6 +123,9 @@ namespace PayEstimatorUWP
 
                 Gross gross = new Gross(gigsthispay);
                 tbGross.DataContext = gross;
+
+                Net net = new Net(gross.GrossAmount);
+                tbNet.DataContext = net;
 
                 Shifts shifts = new Shifts(gigsthispay);
                 tbShifts.DataContext = shifts;
@@ -207,25 +213,31 @@ namespace PayEstimatorUWP
                 Gross gross = new Gross(gigsnextpay);
                 tbnextGross.DataContext = gross;
 
+                Net net = new Net(gross.GrossAmount);
+                tbnextNet.DataContext = net;
+
                 Shifts shifts = new Shifts(gigsnextpay);
                 tbnextShifts.DataContext = shifts;
             }
             else
             {
                 //debug
-                List<Gig> gigsthispay = new List<Gig>();
-                gigsthispay.Add(new Gig(DateTimeOffset.Now, TimeSpan.FromHours(3), "Test", "Test", "LEVEL3"));
+                List<Gig> gigsnextpay = new List<Gig>();
+                gigsnextpay.Add(new Gig(DateTimeOffset.Now, TimeSpan.FromHours(3), "Test", "Test", "LEVEL3"));
 
-                lvGigs.ItemsSource = gigsthispay;
+                lvnextGigs.ItemsSource = gigsnextpay;
 
-                Hours hours = new Hours(gigsthispay);
-                tbHours.DataContext = hours;
+                Hours hours = new Hours(gigsnextpay);
+                tbnextHours.DataContext = hours;
 
-                Gross gross = new Gross(gigsthispay);
-                tbGross.DataContext = gross;
+                Gross gross = new Gross(gigsnextpay);
+                tbnextGross.DataContext = gross;
 
-                Shifts shifts = new Shifts(gigsthispay);
-                tbShifts.DataContext = shifts;
+                Net net = new Net(gross.GrossAmount);
+                tbnextNet.DataContext = net;
+
+                Shifts shifts = new Shifts(gigsnextpay);
+                tbnextShifts.DataContext = shifts;
 
             }
         }
@@ -333,7 +345,7 @@ namespace PayEstimatorUWP
             set
             {
                 _shifts = value;
-                OnPropertyChanged("TotalHours");
+                OnPropertyChanged("TotalShifts");
             }
         }
 
@@ -384,15 +396,15 @@ namespace PayEstimatorUWP
 
     public class Gross : INotifyPropertyChanged
     {
-        public double LEVEL3A { get; set; }
-        public double LEVEL3B { get; set; }
-        public double LEVEL3SUN { get; set; }
-        public double VANDVRA { get; set; }
-        public double VANDVRB { get; set; }
-        public double VANDVRSUN { get; set; }
-        public double MRHRA { get; set; }
-        public double MRHRB { get; set; }
-        public double MRHRSUN { get; set; }
+        public double LEVEL3A { get; private set; }
+        public double LEVEL3B { get; private set; }
+        public double LEVEL3SUN { get; private set; }
+        public double VANDVRA { get; private set; }
+        public double VANDVRB { get; private set; }
+        public double VANDVRSUN { get; private set; }
+        public double MRHRA { get; private set; }
+        public double MRHRB { get; private set; }
+        public double MRHRSUN { get; private set; }
 
         private double _grossAmount;
 
@@ -402,7 +414,7 @@ namespace PayEstimatorUWP
             set
             {
                 _grossAmount = value;
-                OnPropertyChanged("TotalHours");
+                OnPropertyChanged("GrossAmount");
             }
         }
 
@@ -444,6 +456,88 @@ namespace PayEstimatorUWP
         }
     }
 
+    public class Net : INotifyPropertyChanged
+    {
+        public double _grossAmount { get; private set; }
+        public double _taxAmount { get; private set; }
+        public double _HELPAmount { get; private set; }
+        private double _netAmount;
+
+        public double NetAmount
+        {
+            get { return _netAmount; }
+            set
+            {
+                _netAmount = value;
+                OnPropertyChanged("NetAmount");
+            }
+        }
+
+        public bool TaxFreeThresholdClaimed { get; private set; }
+        public bool HECSLiability { get; private set; }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public void OnPropertyChanged(string PropertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
+        }
+
+        public Net(double gross)
+        {
+            _grossAmount = 0;
+            _taxAmount = 0;
+            _netAmount = 0;
+            _HELPAmount = 0;
+            TaxFreeThresholdClaimed = false;
+            HECSLiability = true;
+
+            _grossAmount = Math.Floor(gross);
+
+            //PAYG Tax withheld no tax free threashould claimed
+            if (!TaxFreeThresholdClaimed && (_grossAmount < 60))
+                _taxAmount = (0.19 * (_grossAmount + 0.99)) - 0.19;
+            else if (!TaxFreeThresholdClaimed && (_grossAmount < 361))
+                _taxAmount = (0.2332 * (_grossAmount + 0.99)) - 2.6045;
+            else if (!TaxFreeThresholdClaimed && (_grossAmount < 932))
+                _taxAmount = (0.3477 * (_grossAmount + 0.99)) - 44.0006;
+            else if (!TaxFreeThresholdClaimed && (_grossAmount < 1323))
+                _taxAmount = (0.345 * (_grossAmount + 0.99)) - 41.4841;
+            else if (!TaxFreeThresholdClaimed && (_grossAmount < 3111))
+                _taxAmount = (0.39 * (_grossAmount + 0.99)) - 101.0225;
+            else
+                _taxAmount = (0.49 * (_grossAmount + 0.99)) - 412.1764;
+
+            _taxAmount = Math.Round(_taxAmount, 2);
+
+            //PAYG Tax withheld HELP/SSL/TSL & SFSS debt
+            if (HECSLiability &&(_grossAmount < 705))
+                _HELPAmount = 0;
+            else if (HECSLiability && (_grossAmount < 825))
+                _HELPAmount = _grossAmount * 0.04;
+            else if (HECSLiability && (_grossAmount < 945))
+                _HELPAmount = _grossAmount * 0.045;
+            else if (HECSLiability && (_grossAmount < 1013))
+                _HELPAmount = _grossAmount * 0.05;
+            else if (HECSLiability && (_grossAmount < 1115))
+                _HELPAmount = _grossAmount * 0.055;
+            else if (HECSLiability && (_grossAmount < 1237))
+                _HELPAmount = _grossAmount * 0.06;
+            else if (HECSLiability && (_grossAmount < 1321))
+                _HELPAmount = _grossAmount * 0.065;
+            else if (HECSLiability && (_grossAmount < 1489))
+                _HELPAmount = _grossAmount * 0.07;
+            else if (HECSLiability && (_grossAmount < 1609))
+                _HELPAmount = _grossAmount * 0.075;
+            else
+                _HELPAmount = _grossAmount * 0.08;
+
+            _HELPAmount = Math.Round(_HELPAmount, 2);
+
+            NetAmount = Math.Ceiling(_grossAmount - _taxAmount - _HELPAmount);
+        }
+    }
+
     public class DoubleToStringConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, string language)
@@ -452,6 +546,32 @@ namespace PayEstimatorUWP
                 return null;
 
             string s = value.ToString();
+            return s;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotSupportedException();
+        }
+    }
+
+    public class DoubleToCurrencyFormatStringConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            double d = 0;
+
+            if (value == null)
+                return null;
+
+            double.TryParse(value.ToString(), out d);
+
+            string s = d.ToString("C");
             return s;
         }
 

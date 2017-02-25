@@ -10,6 +10,7 @@
 
     <Page.Resources>
         <local:DoubleToStringConverter x:Key="DoubleToStringConverter" />
+        <local:DoubleToCurrencyFormatStringConverter x:Key="DoubleToCurrencyFormatStringConverter" />
     </Page.Resources>
 
     <Pivot x:Name="rootPivot" Title="Pay Estimater">
@@ -20,17 +21,22 @@
                 <StackPanel Orientation="Vertical">
 
                     <TextBlock x:Name="tbGross">
-                <Run Text="Gross Amount: $"/>
-                <Run Text="{Binding Path=GrossAmount, Converter={StaticResource DoubleToStringConverter}}"/>
+                <Run Text="Gross:"/>
+                <Run Text="{Binding Path=GrossAmount, Converter={StaticResource DoubleToCurrencyFormatStringConverter}}"/>
+                    </TextBlock>
+
+                    <TextBlock x:Name="tbNet">
+                <Run Text="Net:"/>
+                <Run Text="{Binding Path=NetAmount, Converter={StaticResource DoubleToCurrencyFormatStringConverter}}"/>
                     </TextBlock>
 
                     <TextBlock x:Name="tbShifts">
-                <Run Text="Shifts: "/>
+                <Run Text="Shifts:"/>
                 <Run Text="{Binding Path=TotalShifts, Converter={StaticResource DoubleToStringConverter}}"/>
                     </TextBlock>
 
                     <TextBlock x:Name="tbHours">
-                <Run Text="Total Hours: "/>
+                <Run Text="Total Hours:"/>
                 <Run Text="{Binding Path=TotalHours, Converter={StaticResource DoubleToStringConverter}}"/>
                     </TextBlock>
 
@@ -73,17 +79,22 @@
                 <StackPanel Orientation="Vertical">
 
                     <TextBlock x:Name="tbnextGross">
-                <Run Text="Gross Amount: $"/>
-                <Run Text="{Binding Path=GrossAmount, Converter={StaticResource DoubleToStringConverter}}"/>
+                <Run Text="Gross:"/>
+                <Run Text="{Binding Path=GrossAmount, Converter={StaticResource DoubleToCurrencyFormatStringConverter}}"/>
+                    </TextBlock>
+
+                    <TextBlock x:Name="tbnextNet">
+                <Run Text="Net:"/>
+                <Run Text="{Binding Path=NetAmount, Converter={StaticResource DoubleToCurrencyFormatStringConverter}}"/>
                     </TextBlock>
 
                     <TextBlock x:Name="tbnextShifts">
-                <Run Text="Shifts: "/>
+                <Run Text="Shifts:"/>
                 <Run Text="{Binding Path=TotalShifts, Converter={StaticResource DoubleToStringConverter}}"/>
                     </TextBlock>
 
                     <TextBlock x:Name="tbnextHours">
-                <Run Text="Total Hours: "/>
+                <Run Text="Total Hours:"/>
                 <Run Text="{Binding Path=TotalHours, Converter={StaticResource DoubleToStringConverter}}"/>
                     </TextBlock>
 
