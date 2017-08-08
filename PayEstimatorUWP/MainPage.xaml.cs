@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using Windows.ApplicationModel.Appointments;
-using Windows.UI.Popups;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
 
@@ -11,6 +10,19 @@ using Windows.UI.Xaml.Data;
 
 namespace PayEstimatorUWP
 {
+    static class PayRates
+    {
+        public static float LEVEL3A_RATE = 24.08f;
+        public static float LEVEL3B_RATE = 34.20f;
+        public static float LEVEL3SUN_RATE = 43.35f;
+        public static float VANDVRA_RATE = 25f;
+        public static float VANDVRB_RATE = 35f;
+        public static float VANDVRSUN_RATE = 44f;
+        public static float MRHRAA_RATE = 26f;
+        public static float MRHRAB_RATE = 35f;
+        public static float MRHRASUN_RATE = 44f;
+    }
+
     public sealed partial class MainPage : Page
     {
         public MainPage()
@@ -55,14 +67,6 @@ namespace PayEstimatorUWP
 
             IReadOnlyList<Appointment> appointments = await appointmentStore.FindAppointmentsAsync(startTime, duration, options);
 
-            ////debug
-            //var ct = new MessageDialog(appointments.Count.ToString());
-            //await ct.ShowAsync();
-
-            ////debug
-            //var dk = new MessageDialog(appointments[0].DetailsKind.ToString());
-            //await dk.ShowAsync();
-
             if (appointments.Count > 0)
             {
                 List<Gig> gigsthispay = new List<Gig>();
@@ -73,24 +77,18 @@ namespace PayEstimatorUWP
                 {
                     if (!appointments[i].AllDay)
                     {
-                        ////debug
-                        //var d = new MessageDialog(appointments[i].Details.ToString());
-                        //await d.ShowAsync();
-
                         try
                         {
                             if (appointments[i].Details.Contains("CrewOnCall::LEVEL3"))
                                 gigsthispay.Add(new Gig(appointments[i].StartTime, appointments[i].Duration, appointments[i].Subject, appointments[i].Location, "LEVEL3"));
-                            else if (appointments[i].Details.Contains("CrewOnCall::VANDVR"))
+                            if (appointments[i].Details.Contains("CrewOnCall::VANDVR"))
                                 gigsthispay.Add(new Gig(appointments[i].StartTime, appointments[i].Duration, appointments[i].Subject, appointments[i].Location, "VANDVR"));
-                            else if (appointments[i].Details.Contains("CrewOnCall::MR/HR"))
+                            if (appointments[i].Details.Contains("CrewOnCall::MR/HR"))
                                 gigsthispay.Add(new Gig(appointments[i].StartTime, appointments[i].Duration, appointments[i].Subject, appointments[i].Location, "MR/HR"));
-                            else
-                                gigsthispay.Add(new Gig(appointments[i].StartTime, appointments[i].Duration, appointments[i].Subject, appointments[i].Location, "LEVEL3"));
                         }
                         catch (ArgumentOutOfRangeException)
                         {
-                            gigsthispay.Add(new Gig(appointments[i].StartTime, appointments[i].Duration, "Test", appointments[i].Location, "LEVEL3"));
+
                         }
                     }
                     i++;
@@ -112,10 +110,7 @@ namespace PayEstimatorUWP
             }
             else
             {
-                //debug
                 List<Gig> gigsthispay = new List<Gig>();
-                gigsthispay.Add(new Gig(DateTimeOffset.Now, TimeSpan.FromHours(3), "Test", "Test", "LEVEL3"));
-
                 lvGigs.ItemsSource = gigsthispay;
 
                 Hours hours = new Hours(gigsthispay);
@@ -164,14 +159,6 @@ namespace PayEstimatorUWP
 
             IReadOnlyList<Appointment> appointments = await appointmentStore.FindAppointmentsAsync(startTime, duration, options);
 
-            ////debug
-            //var ct = new MessageDialog(appointments.Count.ToString());
-            //await ct.ShowAsync();
-
-            ////debug
-            //var dk = new MessageDialog(appointments[0].DetailsKind.ToString());
-            //await dk.ShowAsync();
-
             if (appointments.Count > 0)
             {
                 List<Gig> gigsnextpay = new List<Gig>();
@@ -182,24 +169,18 @@ namespace PayEstimatorUWP
                 {
                     if (!appointments[i].AllDay)
                     {
-                        ////debug
-                        //var d = new MessageDialog(appointments[i].Details.ToString());
-                        //await d.ShowAsync();
-
                         try
                         {
                             if (appointments[i].Details.Contains("CrewOnCall::LEVEL3"))
                                 gigsnextpay.Add(new Gig(appointments[i].StartTime, appointments[i].Duration, appointments[i].Subject, appointments[i].Location, "LEVEL3"));
-                            else if (appointments[i].Details.Contains("CrewOnCall::VANDVR"))
+                            if (appointments[i].Details.Contains("CrewOnCall::VANDVR"))
                                 gigsnextpay.Add(new Gig(appointments[i].StartTime, appointments[i].Duration, appointments[i].Subject, appointments[i].Location, "VANDVR"));
-                            else if (appointments[i].Details.Contains("CrewOnCall::MR/HR"))
+                            if (appointments[i].Details.Contains("CrewOnCall::MR/HR"))
                                 gigsnextpay.Add(new Gig(appointments[i].StartTime, appointments[i].Duration, appointments[i].Subject, appointments[i].Location, "MR/HR"));
-                            else
-                                gigsnextpay.Add(new Gig(appointments[i].StartTime, appointments[i].Duration, appointments[i].Subject, appointments[i].Location, "LEVEL3"));
                         }
                         catch (ArgumentOutOfRangeException)
                         {
-                            gigsnextpay.Add(new Gig(appointments[i].StartTime, appointments[i].Duration, "Test", appointments[i].Location, "LEVEL3"));
+
                         }
                     }
                     i++;
@@ -221,10 +202,7 @@ namespace PayEstimatorUWP
             }
             else
             {
-                //debug
                 List<Gig> gigsnextpay = new List<Gig>();
-                gigsnextpay.Add(new Gig(DateTimeOffset.Now, TimeSpan.FromHours(3), "Test", "Test", "LEVEL3"));
-
                 lvnextGigs.ItemsSource = gigsnextpay;
 
                 Hours hours = new Hours(gigsnextpay);
@@ -289,17 +267,19 @@ namespace PayEstimatorUWP
 
             if ((span < new TimeSpan(3, 0, 0)) && (startTime.DayOfWeek != DayOfWeek.Sunday))
             {
-                duration = new TimeSpan(3, 0, 0);
+                duration = new TimeSpan(3, 0, 0); //min call9
             }
 
             if ((span < new TimeSpan(4, 0, 0)) && (startTime.DayOfWeek == DayOfWeek.Sunday))
             {
-                duration = new TimeSpan(4, 0, 0);
+                duration = new TimeSpan(4, 0, 0); //min call (Sun)
             }
+
+            if ((span > new TimeSpan(5, 0, 0)))
+                duration = duration.Subtract(new TimeSpan(0, 30, 0)); //meal break after 5 hours
 
             while (calcHours < startTime.Add(duration))
             {
-                //MessageBox.Show(calcHours.ToString() + "\n" + LEVEL3.ToString());
                 if ((calcHours.Hour > 7) && (calcHours.Hour < 20) && (calcHours.DayOfWeek != DayOfWeek.Sunday))
                 {
                     Hours += 0.25;
@@ -450,9 +430,9 @@ namespace PayEstimatorUWP
                 MRHRB += gig.MRHRB;
                 MRHRSUN += gig.MRHRSUN;
             }
-            GrossAmount += LEVEL3A * 24.08 + LEVEL3B * 34.20 + LEVEL3SUN * 43.35;
-            GrossAmount += VANDVRA * 25 + VANDVRB * 35 + VANDVRSUN * 44;
-            GrossAmount += MRHRA * 26 + MRHRB * 35 + MRHRSUN * 44;
+            GrossAmount += LEVEL3A * PayRates.LEVEL3A_RATE + LEVEL3B * PayRates.LEVEL3B_RATE + LEVEL3SUN * PayRates.LEVEL3SUN_RATE;
+            GrossAmount += VANDVRA * PayRates.VANDVRA_RATE + VANDVRB * PayRates.VANDVRB_RATE + VANDVRSUN * PayRates.VANDVRSUN_RATE;
+            GrossAmount += MRHRA * PayRates.MRHRAA_RATE + MRHRB * PayRates.MRHRAB_RATE + MRHRSUN * PayRates.MRHRASUN_RATE;
         }
     }
 
