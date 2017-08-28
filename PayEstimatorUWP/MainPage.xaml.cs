@@ -254,7 +254,7 @@ namespace PayEstimatorUWP
 
             if ((span < new TimeSpan(3, 0, 0)) && (startTime.DayOfWeek != DayOfWeek.Sunday))
             {
-                duration = new TimeSpan(3, 0, 0); //min call9
+                duration = new TimeSpan(3, 0, 0); //min call (M-Sat)
             }
 
             if ((span < new TimeSpan(4, 0, 0)) && (startTime.DayOfWeek == DayOfWeek.Sunday))
