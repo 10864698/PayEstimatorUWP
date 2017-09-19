@@ -35,10 +35,8 @@ namespace PayEstimatorUWP
                 startingDate = startingDate.AddDays(-1);
 
             DateTimeOffset currentPayStart = startingDate.AddDays(-14);
-
-            var date = currentPayStart;
             var timeZoneOffset = TimeZoneInfo.Local.GetUtcOffset(DateTime.Now);
-            var startTime = new DateTimeOffset(date.Year, date.Month, date.Day, 0, 0, 0, timeZoneOffset);
+            var startTime = new DateTimeOffset(currentPayStart.Year, currentPayStart.Month, currentPayStart.Day, 0, 0, 0, timeZoneOffset);
 
             TimeSpan duration = TimeSpan.FromDays(7);
 
@@ -58,27 +56,24 @@ namespace PayEstimatorUWP
             {
                 List<Gig> gigsthispay = new List<Gig>();
 
-                var i = 0;
-
-                while (i < appointments.Count)
+                foreach (var appointment in appointments)
                 {
-                    if (!appointments[i].AllDay)
+                    if (!appointment.AllDay)
                     {
                         try
                         {
-                            if (appointments[i].Details.Contains("CrewOnCall::LEVEL3"))
-                                gigsthispay.Add(new Gig(appointments[i].StartTime, appointments[i].Duration, appointments[i].Subject, appointments[i].Location, "LEVEL3"));
-                            if (appointments[i].Details.Contains("CrewOnCall::VANDVR"))
-                                gigsthispay.Add(new Gig(appointments[i].StartTime, appointments[i].Duration, appointments[i].Subject, appointments[i].Location, "VANDVR"));
-                            if (appointments[i].Details.Contains("CrewOnCall::MR/HR"))
-                                gigsthispay.Add(new Gig(appointments[i].StartTime, appointments[i].Duration, appointments[i].Subject, appointments[i].Location, "MR/HR"));
+                            if (appointment.Details.Contains("CrewOnCall::LEVEL3"))
+                                gigsthispay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "LEVEL3"));
+                            if (appointment.Details.Contains("CrewOnCall::VANDVR"))
+                                gigsthispay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "VANDVR"));
+                            if (appointment.Details.Contains("CrewOnCall::MR/HR"))
+                                gigsthispay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "MR/HR"));
                         }
                         catch (ArgumentOutOfRangeException)
                         {
 
                         }
                     }
-                    i++;
                 }
 
                 lvGigs.ItemsSource = gigsthispay;
@@ -115,7 +110,6 @@ namespace PayEstimatorUWP
             }
         }
 
-
         public async void GigsNextPay()
         {
             AppointmentStore appointmentStore = await AppointmentManager.RequestStoreAsync(AppointmentStoreAccessType.AllCalendarsReadOnly);
@@ -127,10 +121,8 @@ namespace PayEstimatorUWP
                 startingDate = startingDate.AddDays(-1);
 
             DateTimeOffset nextPayStart = startingDate.AddDays(-7);
-
-            var date = nextPayStart;
             var timeZoneOffset = TimeZoneInfo.Local.GetUtcOffset(DateTime.Now);
-            var startTime = new DateTimeOffset(date.Year, date.Month, date.Day, 0, 0, 0, timeZoneOffset);
+            var startTime = new DateTimeOffset(nextPayStart.Year, nextPayStart.Month, nextPayStart.Day, 0, 0, 0, timeZoneOffset);
 
             TimeSpan duration = TimeSpan.FromDays(7);
 
@@ -150,27 +142,24 @@ namespace PayEstimatorUWP
             {
                 List<Gig> gigsnextpay = new List<Gig>();
 
-                var i = 0;
-
-                while (i < appointments.Count)
+                foreach (var appointment in appointments)
                 {
-                    if (!appointments[i].AllDay)
+                    if (!appointment.AllDay)
                     {
                         try
                         {
-                            if (appointments[i].Details.Contains("CrewOnCall::LEVEL3"))
-                                gigsnextpay.Add(new Gig(appointments[i].StartTime, appointments[i].Duration, appointments[i].Subject, appointments[i].Location, "LEVEL3"));
-                            if (appointments[i].Details.Contains("CrewOnCall::VANDVR"))
-                                gigsnextpay.Add(new Gig(appointments[i].StartTime, appointments[i].Duration, appointments[i].Subject, appointments[i].Location, "VANDVR"));
-                            if (appointments[i].Details.Contains("CrewOnCall::MR/HR"))
-                                gigsnextpay.Add(new Gig(appointments[i].StartTime, appointments[i].Duration, appointments[i].Subject, appointments[i].Location, "MR/HR"));
+                            if (appointment.Details.Contains("CrewOnCall::LEVEL3"))
+                                gigsnextpay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "LEVEL3"));
+                            if (appointment.Details.Contains("CrewOnCall::VANDVR"))
+                                gigsnextpay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "VANDVR"));
+                            if (appointment.Details.Contains("CrewOnCall::MR/HR"))
+                                gigsnextpay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "MR/HR"));
                         }
                         catch (ArgumentOutOfRangeException)
                         {
 
                         }
                     }
-                    i++;
                 }
 
                 lvnextGigs.ItemsSource = gigsnextpay;
@@ -478,7 +467,7 @@ namespace PayEstimatorUWP
             _taxAmount = Math.Round(_taxAmount, 2);
 
             //PAYG Tax withheld HELP/SSL/TSL & SFSS debt
-            if (HECSLiability &&(_grossAmount < 705))
+            if (HECSLiability && (_grossAmount < 705))
                 _HELPAmount = 0;
             else if (HECSLiability && (_grossAmount < 825))
                 _HELPAmount = _grossAmount * 0.04;
