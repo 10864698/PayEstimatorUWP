@@ -451,39 +451,41 @@ namespace PayEstimatorUWP
             _grossAmount = Math.Floor(gross);
 
             //PAYG Tax withheld no tax free threashould claimed
-            if (!TaxFreeThresholdClaimed && (_grossAmount < 60))
+            if (!TaxFreeThresholdClaimed && (_grossAmount < 72))
                 _taxAmount = (0.19 * (_grossAmount + 0.99)) - 0.19;
             else if (!TaxFreeThresholdClaimed && (_grossAmount < 361))
-                _taxAmount = (0.2332 * (_grossAmount + 0.99)) - 2.6045;
+                _taxAmount = (0.2342 * (_grossAmount + 0.99)) - 3.2130;
             else if (!TaxFreeThresholdClaimed && (_grossAmount < 932))
-                _taxAmount = (0.3477 * (_grossAmount + 0.99)) - 44.0006;
-            else if (!TaxFreeThresholdClaimed && (_grossAmount < 1323))
-                _taxAmount = (0.345 * (_grossAmount + 0.99)) - 41.4841;
+                _taxAmount = (0.3477 * (_grossAmount + 0.99)) - 44.2476;
+            else if (!TaxFreeThresholdClaimed && (_grossAmount < 1380))
+                _taxAmount = (0.3450 * (_grossAmount + 0.99)) - 41.7311;
             else if (!TaxFreeThresholdClaimed && (_grossAmount < 3111))
-                _taxAmount = (0.39 * (_grossAmount + 0.99)) - 101.0225;
+                _taxAmount = (0.3900 * (_grossAmount + 0.99)) - 103.8657;
             else
-                _taxAmount = (0.49 * (_grossAmount + 0.99)) - 412.1764;
+                _taxAmount = (0.4700 * (_grossAmount + 0.99)) - 352.7888;
 
             _taxAmount = Math.Round(_taxAmount, 2);
 
             //PAYG Tax withheld HELP/SSL/TSL & SFSS debt
-            if (HECSLiability && (_grossAmount < 705))
+            if (HECSLiability && (_grossAmount < 999.00))
                 _HELPAmount = 0;
-            else if (HECSLiability && (_grossAmount < 825))
+            else if (HECSLiability && (_grossAmount < 1110.00))
+                _HELPAmount = _grossAmount * 0.02;
+            else if (HECSLiability && (_grossAmount < 1236.00))
                 _HELPAmount = _grossAmount * 0.04;
-            else if (HECSLiability && (_grossAmount < 945))
+            else if (HECSLiability && (_grossAmount < 1363.00))
                 _HELPAmount = _grossAmount * 0.045;
-            else if (HECSLiability && (_grossAmount < 1013))
+            else if (HECSLiability && (_grossAmount < 1434.00))
                 _HELPAmount = _grossAmount * 0.05;
-            else if (HECSLiability && (_grossAmount < 1115))
+            else if (HECSLiability && (_grossAmount < 1542.00))
                 _HELPAmount = _grossAmount * 0.055;
-            else if (HECSLiability && (_grossAmount < 1237))
+            else if (HECSLiability && (_grossAmount < 1670.00))
                 _HELPAmount = _grossAmount * 0.06;
-            else if (HECSLiability && (_grossAmount < 1321))
+            else if (HECSLiability && (_grossAmount < 1758.00))
                 _HELPAmount = _grossAmount * 0.065;
-            else if (HECSLiability && (_grossAmount < 1489))
+            else if (HECSLiability && (_grossAmount < 1934.00))
                 _HELPAmount = _grossAmount * 0.07;
-            else if (HECSLiability && (_grossAmount < 1609))
+            else if (HECSLiability && (_grossAmount < 2061.00))
                 _HELPAmount = _grossAmount * 0.075;
             else
                 _HELPAmount = _grossAmount * 0.08;
