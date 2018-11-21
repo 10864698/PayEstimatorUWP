@@ -450,7 +450,8 @@ namespace PayEstimatorUWP
 
             _grossAmount = Math.Floor(gross);
 
-            //PAYG Tax withheld no tax free threashould claimed
+        //PAYG Tax withheld no tax free threashould claimed
+        //https://www.ato.gov.au/Rates/Schedule-1---Statement-of-formulas-for-calculating-amounts-to-be-withheld/
             if (!TaxFreeThresholdClaimed && (_grossAmount < 72))
                 _taxAmount = (0.19 * (_grossAmount + 0.99)) - 0.19;
             else if (!TaxFreeThresholdClaimed && (_grossAmount < 361))
@@ -466,7 +467,8 @@ namespace PayEstimatorUWP
 
             _taxAmount = Math.Round(_taxAmount, 2);
 
-            //PAYG Tax withheld HELP/SSL/TSL & SFSS debt
+        //PAYG Tax withheld HELP/SSL/TSL & SFSS debt
+        //https://www.ato.gov.au/rates/schedule-8---statement-of-formulas-for-calculating-help,-ssl,-tsl-and-sfss-components/
             if (HECSLiability && (_grossAmount < 999.00))
                 _HELPAmount = 0;
             else if (HECSLiability && (_grossAmount < 1110.00))
