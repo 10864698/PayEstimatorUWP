@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using Windows.ApplicationModel.Appointments;
+using Windows.Storage;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
 
@@ -12,10 +14,15 @@ namespace PayEstimatorUWP
 {
     public sealed partial class MainPage : Page
     {
+        public ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
+
         public MainPage()
         {
             Initialize();
             InitializeComponent();
+
+            toggleSwitchTaxFreeThresholdClaimed.IsOn = localSettings.Values["taxFreeThreshold"] != null ? (bool)localSettings.Values["taxFreeThreshold"] : false;
+            toggleSwitchHasHELPLiability.IsOn = localSettings.Values["HELPLiability"] != null ? (bool)localSettings.Values["HELPLiability"] : false;
         }
 
         public void Initialize()
@@ -40,8 +47,10 @@ namespace PayEstimatorUWP
 
             TimeSpan duration = TimeSpan.FromDays(7);
 
-            FindAppointmentsOptions options = new FindAppointmentsOptions();
-            options.MaxCount = 100;
+            FindAppointmentsOptions options = new FindAppointmentsOptions
+            {
+                MaxCount = 100
+            };
             options.FetchProperties.Add(AppointmentProperties.Subject);
             options.FetchProperties.Add(AppointmentProperties.Location);
             options.FetchProperties.Add(AppointmentProperties.AllDay);
@@ -126,8 +135,10 @@ namespace PayEstimatorUWP
 
             TimeSpan duration = TimeSpan.FromDays(7);
 
-            FindAppointmentsOptions options = new FindAppointmentsOptions();
-            options.MaxCount = 100;
+            FindAppointmentsOptions options = new FindAppointmentsOptions
+            {
+                MaxCount = 100
+            };
             options.FetchProperties.Add(AppointmentProperties.Subject);
             options.FetchProperties.Add(AppointmentProperties.Location);
             options.FetchProperties.Add(AppointmentProperties.AllDay);
@@ -193,6 +204,40 @@ namespace PayEstimatorUWP
                 Shifts shifts = new Shifts(gigsnextpay);
                 tbnextShifts.DataContext = shifts;
 
+            }
+        }
+
+        public void HELPLiability_ToggleSwitch_Toggled(object sender, RoutedEventArgs e)
+        {
+            if (sender is ToggleSwitch toggleSwitch)
+            {
+                if (toggleSwitch.IsOn == true)
+                {
+                    localSettings.Values["HELPLiability"] = true;
+                    Initialize();
+                }
+                else
+                {
+                    localSettings.Values["HELPLiability"] = false;
+                    Initialize();
+                }
+            }
+        }
+
+        public void TaxFreeThreshold_ToggleSwitch_Toggled(object sender, RoutedEventArgs e)
+        {
+            if (sender is ToggleSwitch toggleSwitch)
+            {
+                if (toggleSwitch.IsOn == true)
+                {
+                    localSettings.Values["taxFreeThreshold"] = true;
+                    Initialize();
+                }
+                else
+                {
+                    localSettings.Values["taxFreeThreshold"] = false;
+                    Initialize();
+                }
             }
         }
     }
@@ -414,23 +459,21 @@ namespace PayEstimatorUWP
 
     public class Net : INotifyPropertyChanged
     {
-        public double _grossAmount { get; private set; }
-        public double _taxAmount { get; private set; }
-        public double _HELPAmount { get; private set; }
-        private double _netAmount;
+        private double _grossAmount { get; set; }
+        private double _taxAmount { get; set; }
+        private double __netAmount;
+
+        TaxRates taxRates = new TaxRates();
 
         public double NetAmount
         {
-            get { return _netAmount; }
+            get { return __netAmount; }
             set
             {
-                _netAmount = value;
+                __netAmount = value;
                 OnPropertyChanged("NetAmount");
             }
         }
-
-        public bool TaxFreeThresholdClaimed { get; private set; }
-        public bool HECSLiability { get; private set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -443,58 +486,34 @@ namespace PayEstimatorUWP
         {
             _grossAmount = 0;
             _taxAmount = 0;
-            _netAmount = 0;
-            _HELPAmount = 0;
-            TaxFreeThresholdClaimed = false;
-            HECSLiability = true;
+            NetAmount = 0;
 
             _grossAmount = Math.Floor(gross);
 
-        //PAYG Tax withheld no tax free threashould claimed
-        //https://www.ato.gov.au/Rates/Schedule-1---Statement-of-formulas-for-calculating-amounts-to-be-withheld/
-            if (!TaxFreeThresholdClaimed && (_grossAmount < 72))
-                _taxAmount = (0.19 * (_grossAmount + 0.99)) - 0.19;
-            else if (!TaxFreeThresholdClaimed && (_grossAmount < 361))
-                _taxAmount = (0.2342 * (_grossAmount + 0.99)) - 3.2130;
-            else if (!TaxFreeThresholdClaimed && (_grossAmount < 932))
-                _taxAmount = (0.3477 * (_grossAmount + 0.99)) - 44.2476;
-            else if (!TaxFreeThresholdClaimed && (_grossAmount < 1380))
-                _taxAmount = (0.3450 * (_grossAmount + 0.99)) - 41.7311;
-            else if (!TaxFreeThresholdClaimed && (_grossAmount < 3111))
-                _taxAmount = (0.3900 * (_grossAmount + 0.99)) - 103.8657;
-            else
-                _taxAmount = (0.4700 * (_grossAmount + 0.99)) - 352.7888;
 
-            _taxAmount = Math.Round(_taxAmount, 2);
 
-        //PAYG Tax withheld HELP/SSL/TSL & SFSS debt
-        //https://www.ato.gov.au/rates/schedule-8---statement-of-formulas-for-calculating-help,-ssl,-tsl-and-sfss-components/
-            if (HECSLiability && (_grossAmount < 999.00))
-                _HELPAmount = 0;
-            else if (HECSLiability && (_grossAmount < 1110.00))
-                _HELPAmount = _grossAmount * 0.02;
-            else if (HECSLiability && (_grossAmount < 1236.00))
-                _HELPAmount = _grossAmount * 0.04;
-            else if (HECSLiability && (_grossAmount < 1363.00))
-                _HELPAmount = _grossAmount * 0.045;
-            else if (HECSLiability && (_grossAmount < 1434.00))
-                _HELPAmount = _grossAmount * 0.05;
-            else if (HECSLiability && (_grossAmount < 1542.00))
-                _HELPAmount = _grossAmount * 0.055;
-            else if (HECSLiability && (_grossAmount < 1670.00))
-                _HELPAmount = _grossAmount * 0.06;
-            else if (HECSLiability && (_grossAmount < 1758.00))
-                _HELPAmount = _grossAmount * 0.065;
-            else if (HECSLiability && (_grossAmount < 1934.00))
-                _HELPAmount = _grossAmount * 0.07;
-            else if (HECSLiability && (_grossAmount < 2061.00))
-                _HELPAmount = _grossAmount * 0.075;
-            else
-                _HELPAmount = _grossAmount * 0.08;
+            if (!taxRates.TaxFreeThreshould.TaxFreeThresholdClaimed && !taxRates.HELPLiability.HasHELPLiability)
+            {
+                Coefficients coefficients = taxRates.GetCoefficients(taxRates.Schedule1Scale1, _grossAmount);
+                _taxAmount = (coefficients.a * (_grossAmount + 0.99)) - coefficients.b;
+            }
+            if (taxRates.TaxFreeThreshould.TaxFreeThresholdClaimed && !taxRates.HELPLiability.HasHELPLiability)
+            {
+                Coefficients coefficients = taxRates.GetCoefficients(taxRates.Schedule1Scale2, _grossAmount);
+                _taxAmount = coefficients.a * (_grossAmount + 0.99) - coefficients.b;
+            }
+            if (!taxRates.TaxFreeThreshould.TaxFreeThresholdClaimed && taxRates.HELPLiability.HasHELPLiability)
+            {
+                Coefficients coefficients = taxRates.GetCoefficients(taxRates.Schedule8Scale1, _grossAmount);
+                _taxAmount = coefficients.a * (_grossAmount + 0.99) - coefficients.b;
+            }
+            if (taxRates.TaxFreeThreshould.TaxFreeThresholdClaimed && taxRates.HELPLiability.HasHELPLiability)
+            {
+                Coefficients coefficients = taxRates.GetCoefficients(taxRates.Schedule8Scale2, _grossAmount);
+                _taxAmount = coefficients.a * (_grossAmount + 0.99) - coefficients.b;
+            }
 
-            _HELPAmount = Math.Round(_HELPAmount, 2);
-
-            NetAmount = Math.Ceiling(_grossAmount - _taxAmount - _HELPAmount);
+            NetAmount = Math.Ceiling(_grossAmount - _taxAmount);
         }
     }
 
@@ -524,12 +543,11 @@ namespace PayEstimatorUWP
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            double d = 0;
 
             if (value == null)
                 return null;
 
-            double.TryParse(value.ToString(), out d);
+            double.TryParse(value.ToString(), out double d);
 
             string s = d.ToString("C");
             return s;
@@ -546,4 +564,3 @@ namespace PayEstimatorUWP
         }
     }
 }
-

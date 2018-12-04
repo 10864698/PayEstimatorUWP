@@ -4,15 +4,15 @@ namespace PayEstimatorUWP
 {
     static class PayRates
     {
-        public static float LEVEL3A_RATE = 27.03f;
-        public static float LEVEL3B_RATE = 38.38f;
-        public static float LEVEL3SUN_RATE = 48.65f;
-        public static float VANDVRA_RATE = 28.00f;
-        public static float VANDVRB_RATE = 39.00f;
-        public static float VANDVRSUN_RATE = 48.00f; //?
-        public static float MRHRAA_RATE = 29.00f;
-        public static float MRHRAB_RATE = 39.00f;
-        public static float MRHRASUN_RATE = 50.00f;
+        public static double LEVEL3A_RATE = 27.03;
+        public static double LEVEL3B_RATE = 38.38;
+        public static double LEVEL3SUN_RATE = 48.65;
+        public static double VANDVRA_RATE = 28.00;
+        public static double VANDVRB_RATE = 39.00;
+        public static double VANDVRSUN_RATE = 48.00; //?
+        public static double MRHRAA_RATE = 29.00;
+        public static double MRHRAB_RATE = 39.00;
+        public static double MRHRASUN_RATE = 50.00;
     }
 }
 

@@ -130,7 +130,24 @@
                 </StackPanel>
             </ScrollViewer>
         </PivotItem>
-        
+
+        <PivotItem Header="Options">
+            <StackPanel Orientation="Vertical">
+                <ToggleSwitch x:Name="toggleSwitchTaxFreeThresholdClaimed"
+                              Header="Tax Free Thresold Claimed"
+                              OnContent="Yes"
+                              OffContent="No"
+                              Toggled="TaxFreeThreshold_ToggleSwitch_Toggled">
+                </ToggleSwitch>
+                <ToggleSwitch x:Name="toggleSwitchHasHELPLiability"
+                              Header="HECS Liability"
+                              OnContent="Yes"
+                              OffContent="No"
+                              Toggled="HELPLiability_ToggleSwitch_Toggled">
+                </ToggleSwitch>
+            </StackPanel>
+        </PivotItem>
+
     </Pivot>
-    
+
 </Page>
