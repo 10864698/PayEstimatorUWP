@@ -71,11 +71,11 @@ namespace PayEstimatorUWP
                     {
                         try
                         {
-                            if (appointment.Details.Contains("CrewOnCall::LEVEL3"))
+                            if (appointment.Details.Contains("CrewOnCall::LEVEL3") && (appointment.StartTime.Date != startTime.AddDays(-1).Date))
                                 gigsthispay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "LEVEL3"));
-                            if (appointment.Details.Contains("CrewOnCall::VANDVR"))
+                            if (appointment.Details.Contains("CrewOnCall::VANDVR") && (appointment.StartTime.Date != startTime.AddDays(-1).Date))
                                 gigsthispay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "VANDVR"));
-                            if (appointment.Details.Contains("CrewOnCall::MR/HR"))
+                            if (appointment.Details.Contains("CrewOnCall::MR/HR") && (appointment.StartTime.Date != startTime.AddDays(-1).Date))
                                 gigsthispay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "MR/HR"));
                         }
                         catch (ArgumentOutOfRangeException)
@@ -159,11 +159,11 @@ namespace PayEstimatorUWP
                     {
                         try
                         {
-                            if (appointment.Details.Contains("CrewOnCall::LEVEL3"))
+                            if (appointment.Details.Contains("CrewOnCall::LEVEL3") && (appointment.StartTime.Date != startTime.AddDays(-1).Date))
                                 gigsnextpay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "LEVEL3"));
-                            if (appointment.Details.Contains("CrewOnCall::VANDVR"))
+                            if (appointment.Details.Contains("CrewOnCall::VANDVR") && (appointment.StartTime.Date != startTime.AddDays(-1).Date))
                                 gigsnextpay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "VANDVR"));
-                            if (appointment.Details.Contains("CrewOnCall::MR/HR"))
+                            if (appointment.Details.Contains("CrewOnCall::MR/HR") && (appointment.StartTime.Date != startTime.AddDays(-1).Date))
                                 gigsnextpay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "MR/HR"));
                         }
                         catch (ArgumentOutOfRangeException)
