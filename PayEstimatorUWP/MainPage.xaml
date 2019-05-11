@@ -39,7 +39,7 @@
                 <Run Text="Total Hours:"/>
                 <Run Text="{Binding Path=TotalHours, Converter={StaticResource DoubleToStringConverter}}"/>
                     </TextBlock>
-
+                    
                     <ListView x:Name="lvGigs" ItemsSource="{Binding gigs, Mode=OneWay}">
 
                         <ListView.ItemContainerStyle>
@@ -60,6 +60,8 @@
                                         <TextBlock Text=" ("/>
                                         <TextBlock Text="{Binding Hours}"/>
                                         <TextBlock Text=" Hrs)"/>
+                                        <TextBlock Text=" "/>
+                                        <TextBlock Text="{Binding PH}"/>
                                     </StackPanel>
                                     <TextBlock Text="{Binding ClientName}"/>
                                     <TextBlock Text="{Binding VenueName}"/>
