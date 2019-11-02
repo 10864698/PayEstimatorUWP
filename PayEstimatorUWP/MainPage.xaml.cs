@@ -307,8 +307,14 @@ namespace PayEstimatorUWP
                 duration = new TimeSpan(4, 0, 0); //min 4 hour call (PH)
             }
 
-            if ((span > new TimeSpan(5, 0, 0)))
-                duration = duration.Subtract(new TimeSpan(0, 30, 0)); //meal break after 5 hours
+            if ((span > new TimeSpan(5, 30, 0)))
+                duration = duration.Subtract(new TimeSpan(0, 30, 0)); //meal break after 5.5 hours
+
+            if ((span > new TimeSpan(11, 30, 0)))
+                duration = duration.Subtract(new TimeSpan(0, 60, 0)); //2 meal breaks after 12 hours
+
+            if ((span > new TimeSpan(17, 0, 0)))
+                duration = duration.Subtract(new TimeSpan(0, 90, 0)); //3 meal breaks after 17 hours
 
             while (calcHours < startTime.Add(duration))
             {
