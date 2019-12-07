@@ -249,6 +249,7 @@ namespace PayEstimatorUWP
         public string EndTime { get; set; }
         public string ClientName { get; set; }
         public string VenueName { get; set; }
+        public string PH { get; set; }
         public double Hours { get; set; }
         public string Skill { get; set; }
         public double LEVEL3A { get; set; }
@@ -268,6 +269,7 @@ namespace PayEstimatorUWP
             EndTime = startTime.Add(duration).ToString("t");
             ClientName = subject;
             VenueName = location;
+            PH = "";
             Hours = 0;
             Skill = skill;
             LEVEL3A = 0;
@@ -292,12 +294,12 @@ namespace PayEstimatorUWP
 
             if ((span < new TimeSpan(3, 0, 0)) && (startTime.DayOfWeek != DayOfWeek.Sunday))
             {
-                duration = new TimeSpan(3, 0, 0); //min call (M-Sat)
+                duration = new TimeSpan(3, 0, 0); //min 3 hour call (M-Sat)
             }
 
             if ((span < new TimeSpan(4, 0, 0)) && (startTime.DayOfWeek == DayOfWeek.Sunday))
             {
-                duration = new TimeSpan(4, 0, 0); //min call (Sun)
+                duration = new TimeSpan(4, 0, 0); //min 4 hour call (Sun)
             }
 
             if ((span < new TimeSpan(4, 0, 0)) && (publicHoliday.PublicHoliday))
@@ -305,8 +307,14 @@ namespace PayEstimatorUWP
                 duration = new TimeSpan(4, 0, 0); //min 4 hour call (PH)
             }
 
-            if ((span > new TimeSpan(5, 0, 0)))
-                duration = duration.Subtract(new TimeSpan(0, 30, 0)); //meal break after 5 hours
+            if ((span > new TimeSpan(5, 30, 0)))
+                duration = duration.Subtract(new TimeSpan(0, 30, 0)); //meal break after 5.5 hours
+
+            if ((span > new TimeSpan(11, 30, 0)))
+                duration = duration.Subtract(new TimeSpan(0, 60, 0)); //2 meal breaks after 12 hours
+
+            if ((span > new TimeSpan(17, 0, 0)))
+                duration = duration.Subtract(new TimeSpan(0, 90, 0)); //3 meal breaks after 17 hours
 
             while (calcHours < startTime.Add(duration))
             {
