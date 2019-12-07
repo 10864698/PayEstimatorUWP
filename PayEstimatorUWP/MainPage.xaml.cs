@@ -282,15 +282,12 @@ namespace PayEstimatorUWP
             MRHRB = 0;
             MRHRSUN = 0;
 
-            var span = new TimeSpan();
-            var calcHours = new DateTimeOffset();
-            //var publicHoliday = new PublicHolidays();
             var publicHoliday = new PublicHolidays(startTime);
             if (publicHoliday.PublicHoliday == true)
                 PH = " (Public Holiday)";
 
-            span = duration;
-            calcHours = startTime;
+            var span = duration;
+            var calcHours = startTime;
 
             if ((span < new TimeSpan(3, 0, 0)) && (startTime.DayOfWeek != DayOfWeek.Sunday))
             {
@@ -318,27 +315,7 @@ namespace PayEstimatorUWP
 
             while (calcHours < startTime.Add(duration))
             {
-                if ((calcHours.Hour > 7) && (calcHours.Hour < 20) && (calcHours.DayOfWeek != DayOfWeek.Sunday) && (publicHoliday.PublicHoliday == false))
-                {
-                    Hours += 0.25;
-                    if ((Skill == null) || (Skill == "LEVEL3"))
-                        LEVEL3A += 0.25;
-                    if (Skill == "VANDVR")
-                        VANDVRA += 0.25;
-                    if (Skill == "MR/HR")
-                        MRHRA += 0.25;
-                }
-                if (((calcHours.Hour < 8) || (calcHours.Hour > 19)) && (calcHours.DayOfWeek != DayOfWeek.Sunday) && (publicHoliday.PublicHoliday == false))
-                {
-                    Hours += 0.25;
-                    if ((Skill == null) || (Skill == "LEVEL3"))
-                        LEVEL3B += 0.25;
-                    if (Skill == "VANDVR")
-                        VANDVRB += 0.25;
-                    if (Skill == "MR/HR")
-                        MRHRB += 0.25;
-                }
-                if ((calcHours.DayOfWeek == DayOfWeek.Sunday) || (publicHoliday.PublicHoliday == true))
+                if ((calcHours.DayOfWeek == DayOfWeek.Sunday) || (publicHoliday.PublicHoliday == true) || (((startTime.DayOfWeek == DayOfWeek.Sunday) || publicHoliday.PublicHoliday == true) && calcHours < startTime.AddHours(4)))
                 {
                     Hours += 0.25;
                     if ((Skill == null) || (Skill == "LEVEL3"))
@@ -348,6 +325,28 @@ namespace PayEstimatorUWP
                     if (Skill == "MR/HR")
                         MRHRSUN += 0.25;
                 }
+                else if ((calcHours.Hour < 8) || (calcHours.Hour > 19))
+                {
+                    Hours += 0.25;
+                    if ((Skill == null) || (Skill == "LEVEL3"))
+                        LEVEL3B += 0.25;
+                    if (Skill == "VANDVR")
+                        VANDVRB += 0.25;
+                    if (Skill == "MR/HR")
+                        MRHRB += 0.25;
+                }
+                else
+                {
+                    Hours += 0.25;
+                    if ((Skill == null) || (Skill == "LEVEL3"))
+                        LEVEL3A += 0.25;
+                    if (Skill == "VANDVR")
+                        VANDVRA += 0.25;
+                    if (Skill == "MR/HR")
+                        MRHRA += 0.25;
+                }
+                
+                
                 calcHours = calcHours.AddMinutes(15);
             }
         }
