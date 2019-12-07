@@ -284,7 +284,6 @@ namespace PayEstimatorUWP
 
             var span = new TimeSpan();
             var calcHours = new DateTimeOffset();
-            //var publicHoliday = new PublicHolidays();
             var publicHoliday = new PublicHolidays(startTime);
             if (publicHoliday.PublicHoliday == true)
                 PH = " (Public Holiday)";
@@ -310,15 +309,15 @@ namespace PayEstimatorUWP
             if ((span > new TimeSpan(5, 30, 0)))
                 duration = duration.Subtract(new TimeSpan(0, 30, 0)); //meal break after 5.5 hours
 
-            if ((span > new TimeSpan(11, 30, 0)))
-                duration = duration.Subtract(new TimeSpan(0, 60, 0)); //2 meal breaks after 12 hours
+            if ((span > new TimeSpan(11, 0, 0)))
+                duration = duration.Subtract(new TimeSpan(0, 30, 0)); //2nd meal break after 11 hours
 
-            if ((span > new TimeSpan(17, 0, 0)))
-                duration = duration.Subtract(new TimeSpan(0, 90, 0)); //3 meal breaks after 17 hours
+            if ((span > new TimeSpan(16, 30, 0)))
+                duration = duration.Subtract(new TimeSpan(0, 30, 0)); //3rd meal break after 16.5 hours
 
             while (calcHours < startTime.Add(duration))
             {
-                if ((calcHours.Hour > 7) && (calcHours.Hour < 20) && (calcHours.DayOfWeek != DayOfWeek.Sunday) && (publicHoliday.PublicHoliday == false))
+                if ((calcHours.Hour > 7) && (calcHours.Hour < 20) && (calcHours.DayOfWeek != DayOfWeek.Sunday) && (publicHoliday.PublicHoliday == false) && (startTime.DayOfWeek != DayOfWeek.Sunday))
                 {
                     Hours += 0.25;
                     if ((Skill == null) || (Skill == "LEVEL3"))
@@ -328,7 +327,7 @@ namespace PayEstimatorUWP
                     if (Skill == "MR/HR")
                         MRHRA += 0.25;
                 }
-                if (((calcHours.Hour < 8) || (calcHours.Hour > 19)) && (calcHours.DayOfWeek != DayOfWeek.Sunday) && (publicHoliday.PublicHoliday == false))
+                if (((calcHours.Hour < 8) || (calcHours.Hour > 19)) && (calcHours.DayOfWeek != DayOfWeek.Sunday) && (publicHoliday.PublicHoliday == false) && (startTime.DayOfWeek != DayOfWeek.Sunday))
                 {
                     Hours += 0.25;
                     if ((Skill == null) || (Skill == "LEVEL3"))
@@ -338,7 +337,7 @@ namespace PayEstimatorUWP
                     if (Skill == "MR/HR")
                         MRHRB += 0.25;
                 }
-                if ((calcHours.DayOfWeek == DayOfWeek.Sunday) || (publicHoliday.PublicHoliday == true))
+                if ((calcHours.DayOfWeek == DayOfWeek.Sunday) || (publicHoliday.PublicHoliday == true) || (startTime.DayOfWeek == DayOfWeek.Sunday))
                 {
                     Hours += 0.25;
                     if ((Skill == null) || (Skill == "LEVEL3"))
