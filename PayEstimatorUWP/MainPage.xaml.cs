@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Globalization;
 using Windows.ApplicationModel.Appointments;
 using Windows.Storage;
 using Windows.UI.Xaml;
@@ -69,14 +68,17 @@ namespace PayEstimatorUWP
                 {
                     if (!appointment.AllDay)
                     {
+                        string MealBreak = null;
                         try
                         {
+                            if (appointment.Details.Contains("::NOBREAK"))
+                                MealBreak = "No break";
                             if (appointment.Details.Contains("CrewOnCall::LEVEL3") && (appointment.StartTime.Date != startTime.AddDays(-1).Date))
-                                gigsthispay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "LEVEL3"));
+                                gigsthispay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "LEVEL3", MealBreak));
                             if (appointment.Details.Contains("CrewOnCall::VANDVR") && (appointment.StartTime.Date != startTime.AddDays(-1).Date))
-                                gigsthispay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "VANDVR"));
+                                gigsthispay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "VANDVR", MealBreak));
                             if (appointment.Details.Contains("CrewOnCall::MR/HR") && (appointment.StartTime.Date != startTime.AddDays(-1).Date))
-                                gigsthispay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "MR/HR"));
+                                gigsthispay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "MR/HR", MealBreak));
                         }
                         catch (ArgumentOutOfRangeException)
                         {
@@ -157,14 +159,17 @@ namespace PayEstimatorUWP
                 {
                     if (!appointment.AllDay)
                     {
+                        string MealBreak = null;
                         try
                         {
+                            if (appointment.Details.Contains("::NOBREAK"))
+                                MealBreak = "No break";
                             if (appointment.Details.Contains("CrewOnCall::LEVEL3") && (appointment.StartTime.Date != startTime.AddDays(-1).Date))
-                                gigsnextpay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "LEVEL3"));
+                                gigsnextpay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "LEVEL3", MealBreak));
                             if (appointment.Details.Contains("CrewOnCall::VANDVR") && (appointment.StartTime.Date != startTime.AddDays(-1).Date))
-                                gigsnextpay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "VANDVR"));
+                                gigsnextpay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "VANDVR", MealBreak));
                             if (appointment.Details.Contains("CrewOnCall::MR/HR") && (appointment.StartTime.Date != startTime.AddDays(-1).Date))
-                                gigsnextpay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "MR/HR"));
+                                gigsnextpay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "MR/HR", MealBreak));
                         }
                         catch (ArgumentOutOfRangeException)
                         {
@@ -207,7 +212,7 @@ namespace PayEstimatorUWP
             }
         }
 
-        public void HELPLiability_ToggleSwitch_Toggled(object sender, RoutedEventArgs e)
+        public void HELPLiabilityToggleSwitchToggled(object sender, RoutedEventArgs e)
         {
             if (sender is ToggleSwitch toggleSwitch)
             {
@@ -224,7 +229,7 @@ namespace PayEstimatorUWP
             }
         }
 
-        public void TaxFreeThreshold_ToggleSwitch_Toggled(object sender, RoutedEventArgs e)
+        public void TaxFreeThresholdToggleSwitchToggled(object sender, RoutedEventArgs e)
         {
             if (sender is ToggleSwitch toggleSwitch)
             {
@@ -251,6 +256,7 @@ namespace PayEstimatorUWP
         public string VenueName { get; set; }
         public string PH { get; set; }
         public double Hours { get; set; }
+        public string MealBreak { get; set; }
         public string Skill { get; set; }
         public double LEVEL3A { get; set; }
         public double LEVEL3B { get; set; }
@@ -262,7 +268,7 @@ namespace PayEstimatorUWP
         public double MRHRB { get; set; }
         public double MRHRSUN { get; set; }
 
-        public Gig(DateTimeOffset startTime, TimeSpan duration, string subject, string location, string skill)
+        public Gig(DateTimeOffset startTime, TimeSpan duration, string subject, string location, string skill, string mealbreak)
         {
             StartDate = startTime.ToString("D");
             StartTime = startTime.ToString("t");
@@ -271,6 +277,7 @@ namespace PayEstimatorUWP
             VenueName = location;
             PH = "";
             Hours = 0;
+            MealBreak = mealbreak;
             Skill = skill;
             LEVEL3A = 0;
             LEVEL3B = 0;
@@ -291,27 +298,48 @@ namespace PayEstimatorUWP
 
             if ((span < new TimeSpan(3, 0, 0)) && (startTime.DayOfWeek != DayOfWeek.Sunday))
             {
-                duration = new TimeSpan(3, 0, 0); //min 3 hour call (M-Sat)
+                {
+                    duration = new TimeSpan(3, 0, 0); //min 3 hour call (M-Sat)
+                    MealBreak = "No break";
+                }
             }
 
             if ((span < new TimeSpan(4, 0, 0)) && (startTime.DayOfWeek == DayOfWeek.Sunday))
             {
-                duration = new TimeSpan(4, 0, 0); //min 4 hour call (Sun)
+                {
+                    duration = new TimeSpan(4, 0, 0); //min 4 hour call (Sun)
+                    MealBreak = "No break";
+                }
             }
 
             if ((span < new TimeSpan(4, 0, 0)) && (publicHoliday.PublicHoliday))
             {
-                duration = new TimeSpan(4, 0, 0); //min 4 hour call (PH)
+                {
+                    duration = new TimeSpan(4, 0, 0); //min 4 hour call (PH)
+                    MealBreak = "No break";
+                }
             }
 
-            if ((span > new TimeSpan(5, 30, 0)))
+            if ((span > new TimeSpan(5, 30, 0)) && (MealBreak == null))
+            {
                 duration = duration.Subtract(new TimeSpan(0, 30, 0)); //meal break after 5.5 hours
+                MealBreak = "30 minute break";
+            }
 
-            if ((span > new TimeSpan(11, 30, 0)))
+            if ((span > new TimeSpan(11, 30, 0)) && (MealBreak == null))
+            {
                 duration = duration.Subtract(new TimeSpan(0, 60, 0)); //2 meal breaks after 12 hours
+                MealBreak = "60 minute break";
+            }
 
-            if ((span > new TimeSpan(17, 0, 0)))
+            if ((span > new TimeSpan(17, 0, 0)) && (MealBreak == null))
+            {
                 duration = duration.Subtract(new TimeSpan(0, 90, 0)); //3 meal breaks after 17 hours
+                MealBreak = "90 minute break";
+            }
+
+            if (MealBreak == null)
+                MealBreak = "No break";
 
             while (calcHours < startTime.Add(duration))
             {
@@ -345,8 +373,8 @@ namespace PayEstimatorUWP
                     if (Skill == "MR/HR")
                         MRHRA += 0.25;
                 }
-                
-                
+
+
                 calcHours = calcHours.AddMinutes(15);
             }
         }
@@ -354,14 +382,14 @@ namespace PayEstimatorUWP
 
     public class Shifts : INotifyPropertyChanged
     {
-        private double _shifts;
+        private double shifts;
 
         public double TotalShifts
         {
-            get { return _shifts; }
+            get { return shifts; }
             set
             {
-                _shifts = value;
+                shifts = value;
                 OnPropertyChanged("TotalShifts");
             }
         }
@@ -381,14 +409,14 @@ namespace PayEstimatorUWP
 
     public class Hours : INotifyPropertyChanged
     {
-        private double _totalhours;
+        private double totalhours;
 
         public double TotalHours
         {
-            get { return _totalhours; }
+            get { return totalhours; }
             set
             {
-                _totalhours = value;
+                totalhours = value;
                 OnPropertyChanged("TotalHours");
             }
         }
@@ -423,14 +451,14 @@ namespace PayEstimatorUWP
         public double MRHRB { get; private set; }
         public double MRHRSUN { get; private set; }
 
-        private double _grossAmount;
+        private double grossAmount;
 
         public double GrossAmount
         {
-            get { return _grossAmount; }
+            get { return grossAmount; }
             set
             {
-                _grossAmount = value;
+                grossAmount = value;
                 OnPropertyChanged("GrossAmount");
             }
         }
@@ -467,26 +495,25 @@ namespace PayEstimatorUWP
                 MRHRB += gig.MRHRB;
                 MRHRSUN += gig.MRHRSUN;
             }
-            GrossAmount += LEVEL3A * PayRates.LEVEL3A_RATE + LEVEL3B * PayRates.LEVEL3B_RATE + LEVEL3SUN * PayRates.LEVEL3SUN_RATE;
-            GrossAmount += VANDVRA * PayRates.VANDVRA_RATE + VANDVRB * PayRates.VANDVRB_RATE + VANDVRSUN * PayRates.VANDVRSUN_RATE;
-            GrossAmount += MRHRA * PayRates.MRHRAA_RATE + MRHRB * PayRates.MRHRAB_RATE + MRHRSUN * PayRates.MRHRASUN_RATE;
+            GrossAmount += LEVEL3A * PayRates.LEVEL3ARATE + LEVEL3B * PayRates.LEVEL3BRATE + LEVEL3SUN * PayRates.LEVEL3SUNRATE;
+            GrossAmount += VANDVRA * PayRates.VANDVRARATE + VANDVRB * PayRates.VANDVRBRATE + VANDVRSUN * PayRates.VANDVRSUNRATE;
+            GrossAmount += MRHRA * PayRates.MRHRAARATE + MRHRB * PayRates.MRHRABRATE + MRHRSUN * PayRates.MRHRASUNRATE;
         }
     }
 
     public class Net : INotifyPropertyChanged
     {
-        private double _grossAmount { get; set; }
-        private double _taxAmount { get; set; }
-        private double __netAmount;
-
-        TaxRates taxRates = new TaxRates();
+        private double GrossAmount { get; set; }
+        private double TaxAmount { get; set; }
+        private double netAmount;
+        readonly TaxRates taxRates = new TaxRates();
 
         public double NetAmount
         {
-            get { return __netAmount; }
+            get { return netAmount; }
             set
             {
-                __netAmount = value;
+                netAmount = value;
                 OnPropertyChanged("NetAmount");
             }
         }
@@ -500,36 +527,34 @@ namespace PayEstimatorUWP
 
         public Net(double gross)
         {
-            _grossAmount = 0;
-            _taxAmount = 0;
+            GrossAmount = 0;
+            TaxAmount = 0;
             NetAmount = 0;
 
-            _grossAmount = Math.Floor(gross);
-
-
-
+            GrossAmount = Math.Floor(gross);
+            
             if (!taxRates.TaxFreeThreshould.TaxFreeThresholdClaimed && !taxRates.HELPLiability.HasHELPLiability)
             {
-                Coefficients coefficients = taxRates.GetCoefficients(taxRates.Schedule1Scale1, _grossAmount);
-                _taxAmount = (coefficients.a * (_grossAmount + 0.99)) - coefficients.b;
+                Coefficients coefficients = taxRates.GetCoefficients(taxRates.Schedule1Scale1, GrossAmount);
+                TaxAmount = (coefficients.a * (GrossAmount + 0.99)) - coefficients.b;
             }
             if (taxRates.TaxFreeThreshould.TaxFreeThresholdClaimed && !taxRates.HELPLiability.HasHELPLiability)
             {
-                Coefficients coefficients = taxRates.GetCoefficients(taxRates.Schedule1Scale2, _grossAmount);
-                _taxAmount = coefficients.a * (_grossAmount + 0.99) - coefficients.b;
+                Coefficients coefficients = taxRates.GetCoefficients(taxRates.Schedule1Scale2, GrossAmount);
+                TaxAmount = coefficients.a * (GrossAmount + 0.99) - coefficients.b;
             }
             if (!taxRates.TaxFreeThreshould.TaxFreeThresholdClaimed && taxRates.HELPLiability.HasHELPLiability)
             {
-                Coefficients coefficients = taxRates.GetCoefficients(taxRates.Schedule8Scale1, _grossAmount);
-                _taxAmount = coefficients.a * (_grossAmount + 0.99) - coefficients.b;
+                Coefficients coefficients = taxRates.GetCoefficients(taxRates.Schedule8Scale1, GrossAmount);
+                TaxAmount = coefficients.a * (GrossAmount + 0.99) - coefficients.b;
             }
             if (taxRates.TaxFreeThreshould.TaxFreeThresholdClaimed && taxRates.HELPLiability.HasHELPLiability)
             {
-                Coefficients coefficients = taxRates.GetCoefficients(taxRates.Schedule8Scale2, _grossAmount);
-                _taxAmount = coefficients.a * (_grossAmount + 0.99) - coefficients.b;
+                Coefficients coefficients = taxRates.GetCoefficients(taxRates.Schedule8Scale2, GrossAmount);
+                TaxAmount = coefficients.a * (GrossAmount + 0.99) - coefficients.b;
             }
 
-            NetAmount = Math.Ceiling(_grossAmount - _taxAmount);
+            NetAmount = Math.Ceiling(GrossAmount - TaxAmount);
         }
     }
 
@@ -549,10 +574,10 @@ namespace PayEstimatorUWP
             throw new NotImplementedException();
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotSupportedException();
-        }
+        //public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        //{
+        //    throw new NotSupportedException();
+        //}
     }
 
     public class DoubleToCurrencyFormatStringConverter : IValueConverter
@@ -574,9 +599,9 @@ namespace PayEstimatorUWP
             throw new NotImplementedException();
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotSupportedException();
-        }
+        //public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        //{
+        //    throw new NotSupportedException();
+        //}
     }
 }

@@ -61,6 +61,7 @@
                                         <TextBlock Text="{Binding Hours}"/>
                                         <TextBlock Text=" Hrs)"/>
                                     </StackPanel>
+                                    <TextBlock Text="{Binding MealBreak}"/>
                                     <TextBlock Text="{Binding ClientName}"/>
                                     <TextBlock Text="{Binding VenueName}"/>
                                     <TextBlock Text="{Binding Skill}"/>
@@ -119,6 +120,7 @@
                                         <TextBlock Text="{Binding Hours}"/>
                                         <TextBlock Text=" Hrs)"/>
                                     </StackPanel>
+                                    <TextBlock Text="{Binding MealBreak}"/>
                                     <TextBlock Text="{Binding ClientName}"/>
                                     <TextBlock Text="{Binding VenueName}"/>
                                     <TextBlock Text="{Binding Skill}"/>
@@ -137,13 +139,13 @@
                               Header="Tax Free Thresold Claimed"
                               OnContent="Yes"
                               OffContent="No"
-                              Toggled="TaxFreeThreshold_ToggleSwitch_Toggled">
+                              Toggled="TaxFreeThresholdToggleSwitchToggled">
                 </ToggleSwitch>
                 <ToggleSwitch x:Name="toggleSwitchHasHELPLiability"
                               Header="HECS Liability"
                               OnContent="Yes"
                               OffContent="No"
-                              Toggled="HELPLiability_ToggleSwitch_Toggled">
+                              Toggled="HELPLiabilityToggleSwitchToggled">
                 </ToggleSwitch>
             </StackPanel>
         </PivotItem>
