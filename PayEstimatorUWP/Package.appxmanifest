@@ -24,6 +24,6 @@
   </Applications>
   <Capabilities>
     <Capability Name="internetClient" />
-    <uap:Capability Name="appointments" />
+    <uap:Capability Name="appointments"/>
   </Capabilities>
 </Package>

@@ -26,8 +26,101 @@ namespace PayEstimatorUWP
 
         public void Initialize()
         {
+            GigsPreviousPay();
             GigsThisPay();
             GigsNextPay();
+            GigsFuturePay();
+        }
+
+        public async void GigsPreviousPay()
+        {
+            AppointmentStore appointmentStore = await AppointmentManager.RequestStoreAsync(AppointmentStoreAccessType.AllCalendarsReadOnly);
+
+            DayOfWeek weekStart = DayOfWeek.Monday;
+            DateTimeOffset startingDate = DateTimeOffset.Now;
+
+            while (startingDate.DayOfWeek != weekStart)
+                startingDate = startingDate.AddDays(-1);
+
+            DateTimeOffset previousPayStart = startingDate.AddDays(-21);
+            var timeZoneOffset = TimeZoneInfo.Local.GetUtcOffset(DateTime.Now);
+            var startTime = new DateTimeOffset(previousPayStart.Year, previousPayStart.Month, previousPayStart.Day, 0, 0, 0, timeZoneOffset);
+
+            TimeSpan duration = TimeSpan.FromDays(7);
+
+            FindAppointmentsOptions options = new FindAppointmentsOptions
+            {
+                MaxCount = 100
+            };
+            options.FetchProperties.Add(AppointmentProperties.Subject);
+            options.FetchProperties.Add(AppointmentProperties.Location);
+            options.FetchProperties.Add(AppointmentProperties.AllDay);
+            options.FetchProperties.Add(AppointmentProperties.StartTime);
+            options.FetchProperties.Add(AppointmentProperties.Duration);
+            options.FetchProperties.Add(AppointmentProperties.Details);
+            options.FetchProperties.Add(AppointmentProperties.DetailsKind);
+
+            IReadOnlyList<Appointment> appointments = await appointmentStore.FindAppointmentsAsync(startTime, duration, options);
+
+            if (appointments.Count > 0)
+            {
+                List<Gig> gigspreviouspay = new List<Gig>();
+
+                foreach (var appointment in appointments)
+                {
+                    if (!appointment.AllDay)
+                    {
+                        string MealBreak = null;
+                        try
+                        {
+                            if (appointment.Details.Contains("::NOBREAK"))
+                                MealBreak = "No break";
+                            if (appointment.Details.Contains("CrewOnCall::LEVEL3") && (appointment.StartTime.Date != startTime.AddDays(-1).Date))
+                                gigspreviouspay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "LEVEL3", MealBreak));
+                            if (appointment.Details.Contains("CrewOnCall::VANDVR") && (appointment.StartTime.Date != startTime.AddDays(-1).Date))
+                                gigspreviouspay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "VANDVR", MealBreak));
+                            if (appointment.Details.Contains("CrewOnCall::MR/HR") && (appointment.StartTime.Date != startTime.AddDays(-1).Date))
+                                gigspreviouspay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "MR/HR", MealBreak));
+                        }
+                        catch (ArgumentOutOfRangeException)
+                        {
+
+                        }
+                    }
+                }
+
+                lvpreviousGigs.ItemsSource = gigspreviouspay;
+
+                Hours hours = new Hours(gigspreviouspay);
+                tbpreviousHours.DataContext = hours;
+
+                Gross gross = new Gross(gigspreviouspay);
+                tbpreviousGross.DataContext = gross;
+
+                Net net = new Net(gross.GrossAmount);
+                tbpreviousNet.DataContext = net;
+
+                Shifts shifts = new Shifts(gigspreviouspay);
+                tbpreviousShifts.DataContext = shifts;
+            }
+            else
+            {
+                List<Gig> gigsnextpay = new List<Gig>();
+                lvpreviousGigs.ItemsSource = gigsnextpay;
+
+                Hours hours = new Hours(gigsnextpay);
+                tbpreviousHours.DataContext = hours;
+
+                Gross gross = new Gross(gigsnextpay);
+                tbpreviousGross.DataContext = gross;
+
+                Net net = new Net(gross.GrossAmount);
+                tbpreviousNet.DataContext = net;
+
+                Shifts shifts = new Shifts(gigsnextpay);
+                tbpreviousShifts.DataContext = shifts;
+
+            }
         }
 
         public async void GigsThisPay()
@@ -40,9 +133,9 @@ namespace PayEstimatorUWP
             while (startingDate.DayOfWeek != weekStart)
                 startingDate = startingDate.AddDays(-1);
 
-            DateTimeOffset currentPayStart = startingDate.AddDays(-14);
+            DateTimeOffset thisPayStart = startingDate.AddDays(-14);
             var timeZoneOffset = TimeZoneInfo.Local.GetUtcOffset(DateTime.Now);
-            var startTime = new DateTimeOffset(currentPayStart.Year, currentPayStart.Month, currentPayStart.Day, 0, 0, 0, timeZoneOffset);
+            var startTime = new DateTimeOffset(thisPayStart.Year, thisPayStart.Month, thisPayStart.Day, 0, 0, 0, timeZoneOffset);
 
             TimeSpan duration = TimeSpan.FromDays(7);
 
@@ -87,36 +180,36 @@ namespace PayEstimatorUWP
                     }
                 }
 
-                lvGigs.ItemsSource = gigsthispay;
+                lvthisGigs.ItemsSource = gigsthispay;
 
                 Hours hours = new Hours(gigsthispay);
-                tbHours.DataContext = hours;
+                tbthisHours.DataContext = hours;
 
                 Gross gross = new Gross(gigsthispay);
-                tbGross.DataContext = gross;
+                tbthisGross.DataContext = gross;
 
                 Net net = new Net(gross.GrossAmount);
-                tbNet.DataContext = net;
+                tbthisNet.DataContext = net;
 
                 Shifts shifts = new Shifts(gigsthispay);
-                tbShifts.DataContext = shifts;
+                tbthisShifts.DataContext = shifts;
             }
             else
             {
                 List<Gig> gigsthispay = new List<Gig>();
-                lvGigs.ItemsSource = gigsthispay;
+                lvthisGigs.ItemsSource = gigsthispay;
 
                 Hours hours = new Hours(gigsthispay);
-                tbHours.DataContext = hours;
+                tbthisHours.DataContext = hours;
 
                 Gross gross = new Gross(gigsthispay);
-                tbGross.DataContext = gross;
+                tbthisGross.DataContext = gross;
 
                 Net net = new Net(gross.GrossAmount);
-                tbNet.DataContext = net;
+                tbthisNet.DataContext = net;
 
                 Shifts shifts = new Shifts(gigsthispay);
-                tbShifts.DataContext = shifts;
+                tbthisShifts.DataContext = shifts;
 
             }
         }
@@ -208,6 +301,97 @@ namespace PayEstimatorUWP
 
                 Shifts shifts = new Shifts(gigsnextpay);
                 tbnextShifts.DataContext = shifts;
+
+            }
+        }
+
+        public async void GigsFuturePay()
+        {
+            AppointmentStore appointmentStore = await AppointmentManager.RequestStoreAsync(AppointmentStoreAccessType.AllCalendarsReadOnly);
+
+            DayOfWeek weekStart = DayOfWeek.Monday;
+            DateTimeOffset startingDate = DateTimeOffset.Now;
+
+            while (startingDate.DayOfWeek != weekStart)
+                startingDate = startingDate.AddDays(-1);
+
+            DateTimeOffset futurePayStart = startingDate.AddDays(0);
+            var timeZoneOffset = TimeZoneInfo.Local.GetUtcOffset(DateTime.Now);
+            var startTime = new DateTimeOffset(futurePayStart.Year, futurePayStart.Month, futurePayStart.Day, 0, 0, 0, timeZoneOffset);
+
+            TimeSpan duration = TimeSpan.FromDays(7);
+
+            FindAppointmentsOptions options = new FindAppointmentsOptions
+            {
+                MaxCount = 100
+            };
+            options.FetchProperties.Add(AppointmentProperties.Subject);
+            options.FetchProperties.Add(AppointmentProperties.Location);
+            options.FetchProperties.Add(AppointmentProperties.AllDay);
+            options.FetchProperties.Add(AppointmentProperties.StartTime);
+            options.FetchProperties.Add(AppointmentProperties.Duration);
+            options.FetchProperties.Add(AppointmentProperties.Details);
+            options.FetchProperties.Add(AppointmentProperties.DetailsKind);
+
+            IReadOnlyList<Appointment> appointments = await appointmentStore.FindAppointmentsAsync(startTime, duration, options);
+
+            if (appointments.Count > 0)
+            {
+                List<Gig> gigsfuturepay = new List<Gig>();
+
+                foreach (var appointment in appointments)
+                {
+                    if (!appointment.AllDay)
+                    {
+                        string MealBreak = null;
+                        try
+                        {
+                            if (appointment.Details.Contains("::NOBREAK"))
+                                MealBreak = "No break";
+                            if (appointment.Details.Contains("CrewOnCall::LEVEL3") && (appointment.StartTime.Date != startTime.AddDays(-1).Date))
+                                gigsfuturepay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "LEVEL3", MealBreak));
+                            if (appointment.Details.Contains("CrewOnCall::VANDVR") && (appointment.StartTime.Date != startTime.AddDays(-1).Date))
+                                gigsfuturepay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "VANDVR", MealBreak));
+                            if (appointment.Details.Contains("CrewOnCall::MR/HR") && (appointment.StartTime.Date != startTime.AddDays(-1).Date))
+                                gigsfuturepay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "MR/HR", MealBreak));
+                        }
+                        catch (ArgumentOutOfRangeException)
+                        {
+
+                        }
+                    }
+                }
+
+                lvfutureGigs.ItemsSource = gigsfuturepay;
+
+                Hours hours = new Hours(gigsfuturepay);
+                tbfutureHours.DataContext = hours;
+
+                Gross gross = new Gross(gigsfuturepay);
+                tbfutureGross.DataContext = gross;
+
+                Net net = new Net(gross.GrossAmount);
+                tbfutureNet.DataContext = net;
+
+                Shifts shifts = new Shifts(gigsfuturepay);
+                tbfutureShifts.DataContext = shifts;
+            }
+            else
+            {
+                List<Gig> gigsnextpay = new List<Gig>();
+                lvfutureGigs.ItemsSource = gigsnextpay;
+
+                Hours hours = new Hours(gigsnextpay);
+                tbfutureHours.DataContext = hours;
+
+                Gross gross = new Gross(gigsnextpay);
+                tbfutureGross.DataContext = gross;
+
+                Net net = new Net(gross.GrossAmount);
+                tbfutureNet.DataContext = net;
+
+                Shifts shifts = new Shifts(gigsnextpay);
+                tbfutureShifts.DataContext = shifts;
 
             }
         }
