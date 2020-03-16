@@ -11,7 +11,7 @@ using Windows.UI.Xaml.Data;
 
 namespace PayEstimatorUWP
 {
-    public sealed partial class MainPage : Page
+    public sealed partial class MainPage : Windows.UI.Xaml.Controls.Page
     {
         public ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
 
@@ -210,7 +210,6 @@ namespace PayEstimatorUWP
 
                 Shifts shifts = new Shifts(gigsthispay);
                 tbthisShifts.DataContext = shifts;
-
             }
         }
 
@@ -427,6 +426,15 @@ namespace PayEstimatorUWP
                     localSettings.Values["taxFreeThreshold"] = false;
                     Initialize();
                 }
+            }
+        }
+
+        public void ExportSpreadsheetWorkbookFileButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button)
+            {
+                var exportSpreadsheetWorkbook = new ExportSpreadsheetWorkbookFile();
+                exportSpreadsheetWorkbook.CreatSpreadsheetWorkbookFile();
             }
         }
     }
@@ -716,7 +724,7 @@ namespace PayEstimatorUWP
             NetAmount = 0;
 
             GrossAmount = Math.Floor(gross);
-            
+
             if (!taxRates.TaxFreeThreshould.TaxFreeThresholdClaimed && !taxRates.HELPLiability.HasHELPLiability)
             {
                 Coefficients coefficients = taxRates.GetCoefficients(taxRates.Schedule1Scale1, GrossAmount);

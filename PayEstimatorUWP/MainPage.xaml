@@ -20,6 +20,8 @@
 
                 <StackPanel Orientation="Vertical">
 
+                    <Button Content="Export to .xlsx File" Click="ExportSpreadsheetWorkbookFileButton_Click"/>
+
                     <TextBlock x:Name="tbthisGross">
                 <Run Text="Gross:"/>
                 <Run Text="{Binding Path=GrossAmount, Converter={StaticResource DoubleToCurrencyFormatStringConverter}}"/>
