@@ -10,6 +10,9 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel.Appointments;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Border = DocumentFormat.OpenXml.Spreadsheet.Border;
+using X14 = DocumentFormat.OpenXml.Office2010.Excel;
+using X15 = DocumentFormat.OpenXml.Office2013.Excel;
 
 namespace PayEstimatorUWP
 {
@@ -35,21 +38,25 @@ namespace PayEstimatorUWP
             {
                 using (stream = await file.OpenStreamForWriteAsync())
                 {
-                    using (var workbook = SpreadsheetDocument.Create(stream, SpreadsheetDocumentType.Workbook))
+                    using (var spreadsheetDocument = SpreadsheetDocument.Create(stream, SpreadsheetDocumentType.Workbook))
                     {
-                        var workbookPart = workbook.AddWorkbookPart();
+                        var workbookPart = spreadsheetDocument.AddWorkbookPart();
 
-                        workbook.WorkbookPart.Workbook = new Workbook
+                        WorkbookStylesPart workbookStylesPart = workbookPart.AddNewPart<WorkbookStylesPart>();
+
+                        GenerateWorkbookStylesPart1Content(workbookStylesPart); // <== Adding stylesheet using above function
+
+                        spreadsheetDocument.WorkbookPart.Workbook = new Workbook
                         {
                             Sheets = new Sheets()
                         };
 
-                        var sheetPart = workbook.WorkbookPart.AddNewPart<WorksheetPart>();
+                        var sheetPart = spreadsheetDocument.WorkbookPart.AddNewPart<WorksheetPart>();
                         var sheetData = new SheetData();
                         sheetPart.Worksheet = new Worksheet(sheetData);
 
-                        Sheets sheets = workbook.WorkbookPart.Workbook.GetFirstChild<Sheets>();
-                        string relationshipId = workbook.WorkbookPart.GetIdOfPart(sheetPart);
+                        Sheets sheets = spreadsheetDocument.WorkbookPart.Workbook.GetFirstChild<Sheets>();
+                        string relationshipId = spreadsheetDocument.WorkbookPart.GetIdOfPart(sheetPart);
 
                         uint sheetId = 1;
                         if (sheets.Elements<Sheet>().Count() > 0)
@@ -89,7 +96,8 @@ namespace PayEstimatorUWP
                             Cell cell = new Cell
                             {
                                 DataType = CellValues.String,
-                                CellValue = new CellValue(name)
+                                CellValue = new CellValue(name),
+                                StyleIndex = (UInt32Value)2U
                             };
                             headerRow.AppendChild(cell);
                         }
@@ -319,70 +327,80 @@ namespace PayEstimatorUWP
                             Cell cellst6 = new Cell
                             {
                                 DataType = CellValues.Number,
-                                CellFormula = new CellFormula("= SUM(F2: F" + Convert.ToString((gigsthispay.Count) + 1) + ")")
+                                CellFormula = new CellFormula("= SUM(F2: F" + Convert.ToString((gigsthispay.Count) + 1) + ")"),
+                                StyleIndex = (UInt32Value)2U
                             };
                             newSubtotalRow.AppendChild(cellst6);
 
                             Cell cellst7 = new Cell
                             {
                                 DataType = CellValues.Number,
-                                CellFormula = new CellFormula("= SUM(G2: G" + Convert.ToString((gigsthispay.Count) + 1) + ")")
+                                CellFormula = new CellFormula("= SUM(G2: G" + Convert.ToString((gigsthispay.Count) + 1) + ")"),
+                                StyleIndex = (UInt32Value)2U
                             };
                             newSubtotalRow.AppendChild(cellst7);
 
                             Cell cellst8 = new Cell
                             {
                                 DataType = CellValues.Number,
-                                CellFormula = new CellFormula("= SUM(H2: H" + Convert.ToString((gigsthispay.Count) + 1) + ")")
+                                CellFormula = new CellFormula("= SUM(H2: H" + Convert.ToString((gigsthispay.Count) + 1) + ")"),
+                                StyleIndex = (UInt32Value)2U
                             };
                             newSubtotalRow.AppendChild(cellst8);
 
                             Cell cellst9 = new Cell
                             {
                                 DataType = CellValues.Number,
-                                CellFormula = new CellFormula("= SUM(I2: I" + Convert.ToString((gigsthispay.Count) + 1) + ")")
+                                CellFormula = new CellFormula("= SUM(I2: I" + Convert.ToString((gigsthispay.Count) + 1) + ")"),
+                                StyleIndex = (UInt32Value)2U
                             };
                             newSubtotalRow.AppendChild(cellst9);
 
                             Cell cellst10 = new Cell
                             {
                                 DataType = CellValues.Number,
-                                CellFormula = new CellFormula("= SUM(J2: J" + Convert.ToString((gigsthispay.Count) + 1) + ")")
+                                CellFormula = new CellFormula("= SUM(J2: J" + Convert.ToString((gigsthispay.Count) + 1) + ")"),
+                                StyleIndex = (UInt32Value)2U
                             };
                             newSubtotalRow.AppendChild(cellst10);
 
                             Cell cellst11 = new Cell
                             {
                                 DataType = CellValues.Number,
-                                CellFormula = new CellFormula("= SUM(K2: K" + Convert.ToString((gigsthispay.Count) + 1) + ")")
+                                CellFormula = new CellFormula("= SUM(K2: K" + Convert.ToString((gigsthispay.Count) + 1) + ")"),
+                                StyleIndex = (UInt32Value)2U
                             };
                             newSubtotalRow.AppendChild(cellst11);
 
                             Cell cellst12 = new Cell
                             {
                                 DataType = CellValues.Number,
-                                CellFormula = new CellFormula("= SUM(L2: L" + Convert.ToString((gigsthispay.Count) + 1) + ")")
+                                CellFormula = new CellFormula("= SUM(L2: L" + Convert.ToString((gigsthispay.Count) + 1) + ")"),
+                                StyleIndex = (UInt32Value)2U
                             };
                             newSubtotalRow.AppendChild(cellst12);
 
                             Cell cellst13 = new Cell
                             {
                                 DataType = CellValues.Number,
-                                CellFormula = new CellFormula("= SUM(M2: M" + Convert.ToString((gigsthispay.Count) + 1) + ")")
+                                CellFormula = new CellFormula("= SUM(M2: M" + Convert.ToString((gigsthispay.Count) + 1) + ")"),
+                                StyleIndex = (UInt32Value)2U
                             };
                             newSubtotalRow.AppendChild(cellst13);
 
                             Cell cellst14 = new Cell
                             {
                                 DataType = CellValues.Number,
-                                CellFormula = new CellFormula("= SUM(N2: N" + Convert.ToString((gigsthispay.Count) + 1) + ")")
+                                CellFormula = new CellFormula("= SUM(N2: N" + Convert.ToString((gigsthispay.Count) + 1) + ")"),
+                                StyleIndex = (UInt32Value)2U
                             };
                             newSubtotalRow.AppendChild(cellst14);
 
                             Cell cellst15 = new Cell
                             {
                                 DataType = CellValues.Number,
-                                CellFormula = new CellFormula("= SUM(O2: O" + Convert.ToString((gigsthispay.Count) + 1) + ")")
+                                CellFormula = new CellFormula("= SUM(O2: O" + Convert.ToString((gigsthispay.Count) + 1) + ")"),
+                                StyleIndex = (UInt32Value)2U
                             };
                             newSubtotalRow.AppendChild(cellst15);
 
@@ -442,63 +460,72 @@ namespace PayEstimatorUWP
                             Cell cellpr6 = new Cell
                             {
                                 DataType = CellValues.Number,
-                                CellValue = new CellValue(Convert.ToString(PayRates.LEVEL3ARATE))
+                                CellValue = new CellValue(Convert.ToString(PayRates.LEVEL3ARATE)),
+                                StyleIndex = (UInt32Value)4U
                             };
                             newPayRatesRow.AppendChild(cellpr6);
 
                             Cell cellpr7 = new Cell
                             {
                                 DataType = CellValues.Number,
-                                CellValue = new CellValue(Convert.ToString(PayRates.LEVEL3BRATE))
+                                CellValue = new CellValue(Convert.ToString(PayRates.LEVEL3BRATE)),
+                                StyleIndex = (UInt32Value)4U
                             };
                             newPayRatesRow.AppendChild(cellpr7);
 
                             Cell cellpr8 = new Cell
                             {
                                 DataType = CellValues.Number,
-                                CellValue = new CellValue(Convert.ToString(PayRates.LEVEL3SUNRATE))
+                                CellValue = new CellValue(Convert.ToString(PayRates.LEVEL3SUNRATE)),
+                                StyleIndex = (UInt32Value)4U
                             };
                             newPayRatesRow.AppendChild(cellpr8);
 
                             Cell cellpr9 = new Cell
                             {
                                 DataType = CellValues.Number,
-                                CellValue = new CellValue(Convert.ToString(PayRates.VANDVRARATE))
+                                CellValue = new CellValue(Convert.ToString(PayRates.VANDVRARATE)),
+                                StyleIndex = (UInt32Value)4U
                             };
                             newPayRatesRow.AppendChild(cellpr9);
 
                             Cell cellpr10 = new Cell
                             {
                                 DataType = CellValues.Number,
-                                CellValue = new CellValue(Convert.ToString(PayRates.VANDVRBRATE))
+                                CellValue = new CellValue(Convert.ToString(PayRates.VANDVRBRATE)),
+                                StyleIndex = (UInt32Value)4U
                             };
                             newPayRatesRow.AppendChild(cellpr10);
 
                             Cell cellpr11 = new Cell
                             {
                                 DataType = CellValues.Number,
-                                CellValue = new CellValue(Convert.ToString(PayRates.VANDVRSUNRATE))
+                                CellValue = new CellValue(Convert.ToString(PayRates.VANDVRSUNRATE)),
+                                StyleIndex = (UInt32Value)4U
                             };
                             newPayRatesRow.AppendChild(cellpr11);
 
                             Cell cellpr12 = new Cell
                             {
                                 DataType = CellValues.Number,
-                                CellValue = new CellValue(Convert.ToString(PayRates.MRHRAARATE))
+                                CellValue = new CellValue(Convert.ToString(PayRates.MRHRAARATE)),
+                                StyleIndex = (UInt32Value)4U
                             };
                             newPayRatesRow.AppendChild(cellpr12);
 
                             Cell cellpr13 = new Cell
                             {
                                 DataType = CellValues.Number,
-                                CellValue = new CellValue(Convert.ToString(PayRates.MRHRABRATE))
+                                CellValue = new CellValue(Convert.ToString(PayRates.MRHRABRATE)),
+                                StyleIndex = (UInt32Value)4U
                             };
                             newPayRatesRow.AppendChild(cellpr13);
 
                             Cell cellpr14 = new Cell
                             {
                                 DataType = CellValues.Number,
-                                CellValue = new CellValue(Convert.ToString(PayRates.MRHRASUNRATE))
+                                CellValue = new CellValue(Convert.ToString(PayRates.MRHRASUNRATE)),
+                                StyleIndex = (UInt32Value)4U
                             };
                             newPayRatesRow.AppendChild(cellpr14);
 
@@ -544,83 +571,255 @@ namespace PayEstimatorUWP
                             Cell cellt6 = new Cell
                             {
                                 DataType = CellValues.Number,
-                                CellFormula = new CellFormula("= F" + Convert.ToString((gigsthispay.Count) + 2) + " * F" + Convert.ToString((gigsthispay.Count) + 3))
+                                CellFormula = new CellFormula("= F" + Convert.ToString((gigsthispay.Count) + 2) + " * F" + Convert.ToString((gigsthispay.Count) + 3)),
+                                StyleIndex = (UInt32Value)3U
                             };
                             totalRow.AppendChild(cellt6);
 
                             Cell cellt7 = new Cell
                             {
                                 DataType = CellValues.Number,
-                                CellFormula = new CellFormula("= G" + Convert.ToString((gigsthispay.Count) + 2) + " * G" + Convert.ToString((gigsthispay.Count) + 3))
+                                CellFormula = new CellFormula("= G" + Convert.ToString((gigsthispay.Count) + 2) + " * G" + Convert.ToString((gigsthispay.Count) + 3)),
+                                StyleIndex = (UInt32Value)3U
                             };
                             totalRow.AppendChild(cellt7);
 
                             Cell cellt8 = new Cell
                             {
                                 DataType = CellValues.Number,
-                                CellFormula = new CellFormula("= H" + Convert.ToString((gigsthispay.Count) + 2) + " * H" + Convert.ToString((gigsthispay.Count) + 3))
+                                CellFormula = new CellFormula("= H" + Convert.ToString((gigsthispay.Count) + 2) + " * H" + Convert.ToString((gigsthispay.Count) + 3)),
+                                StyleIndex = (UInt32Value)3U
                             };
                             totalRow.AppendChild(cellt8);
 
                             Cell cellt9 = new Cell
                             {
                                 DataType = CellValues.Number,
-                                CellFormula = new CellFormula("= I" + Convert.ToString((gigsthispay.Count) + 2) + " * I" + Convert.ToString((gigsthispay.Count) + 3))
+                                CellFormula = new CellFormula("= I" + Convert.ToString((gigsthispay.Count) + 2) + " * I" + Convert.ToString((gigsthispay.Count) + 3)),
+                                StyleIndex = (UInt32Value)3U
                             };
                             totalRow.AppendChild(cellt9);
 
                             Cell cellt10 = new Cell
                             {
                                 DataType = CellValues.Number,
-                                CellFormula = new CellFormula("= J" + Convert.ToString((gigsthispay.Count) + 2) + " * J" + Convert.ToString((gigsthispay.Count) + 3))
+                                CellFormula = new CellFormula("= J" + Convert.ToString((gigsthispay.Count) + 2) + " * J" + Convert.ToString((gigsthispay.Count) + 3)),
+                                StyleIndex = (UInt32Value)3U
                             };
                             totalRow.AppendChild(cellt10);
 
                             Cell cellt11 = new Cell
                             {
                                 DataType = CellValues.Number,
-                                CellFormula = new CellFormula("= K" + Convert.ToString((gigsthispay.Count) + 2) + " * K" + Convert.ToString((gigsthispay.Count) + 3))
+                                CellFormula = new CellFormula("= K" + Convert.ToString((gigsthispay.Count) + 2) + " * K" + Convert.ToString((gigsthispay.Count) + 3)),
+                                StyleIndex = (UInt32Value)3U
                             };
                             totalRow.AppendChild(cellt11);
 
                             Cell cellt12 = new Cell
                             {
                                 DataType = CellValues.Number,
-                                CellFormula = new CellFormula("= L" + Convert.ToString((gigsthispay.Count) + 2) + " * L" + Convert.ToString((gigsthispay.Count) + 3))
+                                CellFormula = new CellFormula("= L" + Convert.ToString((gigsthispay.Count) + 2) + " * L" + Convert.ToString((gigsthispay.Count) + 3)),
+                                StyleIndex = (UInt32Value)3U
                             };
                             totalRow.AppendChild(cellt12);
 
                             Cell cellt13 = new Cell
                             {
                                 DataType = CellValues.Number,
-                                CellFormula = new CellFormula("= M" + Convert.ToString((gigsthispay.Count) + 2) + " * M" + Convert.ToString((gigsthispay.Count) + 3))
+                                CellFormula = new CellFormula("= M" + Convert.ToString((gigsthispay.Count) + 2) + " * M" + Convert.ToString((gigsthispay.Count) + 3)),
+                                StyleIndex = (UInt32Value)3U
                             };
                             totalRow.AppendChild(cellt13);
 
                             Cell cellt14 = new Cell
                             {
                                 DataType = CellValues.Number,
-                                CellFormula = new CellFormula("= N" + Convert.ToString((gigsthispay.Count) + 2) + " * N" + Convert.ToString((gigsthispay.Count) + 3))
+                                CellFormula = new CellFormula("= N" + Convert.ToString((gigsthispay.Count) + 2) + " * N" + Convert.ToString((gigsthispay.Count) + 3)),
+                                StyleIndex = (UInt32Value)3U
                             };
                             totalRow.AppendChild(cellt14);
 
                             Cell cellt15 = new Cell
                             {
                                 DataType = CellValues.Number,
-                                CellFormula = new CellFormula("= SUM(F" + Convert.ToString((gigsthispay.Count) + 4) + ": N" + Convert.ToString((gigsthispay.Count) + 4) + ")")
+                                CellFormula = new CellFormula("= SUM(F" + Convert.ToString((gigsthispay.Count) + 4) + ": N" + Convert.ToString((gigsthispay.Count) + 4) + ")"),
+                                StyleIndex = (UInt32Value)3U
                             };
                             totalRow.AppendChild(cellt15);
 
                             sheetData.AppendChild(totalRow);
                         }
 
-                        workbook.WorkbookPart.Workbook.Save();
+                        spreadsheetDocument.WorkbookPart.Workbook.Save();
 
                         // Close the document.
-                        workbook.Close();
+                        spreadsheetDocument.Close();
                     }
                 }
             }
         }
+
+        // Creates an Stylesheet instance and adds its children.
+        private void GenerateWorkbookStylesPart1Content(WorkbookStylesPart workbookStylesPart1)
+        {
+            Stylesheet stylesheet1 = new Stylesheet() { MCAttributes = new MarkupCompatibilityAttributes() { Ignorable = "x14ac x16r2 xr" } };
+            stylesheet1.AddNamespaceDeclaration("mc", "http://schemas.openxmlformats.org/markup-compatibility/2006");
+            stylesheet1.AddNamespaceDeclaration("x14ac", "http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac");
+            stylesheet1.AddNamespaceDeclaration("x16r2", "http://schemas.microsoft.com/office/spreadsheetml/2015/02/main");
+            stylesheet1.AddNamespaceDeclaration("xr", "http://schemas.microsoft.com/office/spreadsheetml/2014/revision");
+
+            NumberingFormats numberingFormats1 = new NumberingFormats() { Count = (UInt32Value)1U };
+            NumberingFormat numberingFormat1 = new NumberingFormat() { NumberFormatId = (UInt32Value)44U, FormatCode = "_-\"$\"* #,##0.00_-;\\-\"$\"* #,##0.00_-;_-\"$\"* \"-\"??_-;_-@_-" };
+
+            numberingFormats1.Append(numberingFormat1);
+
+            Fonts fonts1 = new Fonts() { Count = (UInt32Value)4U };
+
+            Font font1 = new Font();
+            FontSize fontSize1 = new FontSize() { Val = 11D };
+            FontName fontName1 = new FontName() { Val = "Calibri" };
+
+            font1.Append(fontSize1);
+            font1.Append(fontName1);
+
+            Font font2 = new Font();
+            FontSize fontSize2 = new FontSize() { Val = 11D };
+            FontName fontName2 = new FontName() { Val = "Calibri" };
+
+            font2.Append(fontSize2);
+            font2.Append(fontName2);
+
+            Font font3 = new Font();
+            Bold bold1 = new Bold();
+            FontSize fontSize3 = new FontSize() { Val = 11D };
+            FontName fontName3 = new FontName() { Val = "Calibri" };
+            FontFamilyNumbering fontFamilyNumbering1 = new FontFamilyNumbering() { Val = 2 };
+
+            font3.Append(bold1);
+            font3.Append(fontSize3);
+            font3.Append(fontName3);
+            font3.Append(fontFamilyNumbering1);
+
+            Font font4 = new Font();
+            Italic italic1 = new Italic();
+            FontSize fontSize4 = new FontSize() { Val = 11D };
+            FontName fontName4 = new FontName() { Val = "Calibri" };
+            FontFamilyNumbering fontFamilyNumbering2 = new FontFamilyNumbering() { Val = 2 };
+
+            font4.Append(italic1);
+            font4.Append(fontSize4);
+            font4.Append(fontName4);
+            font4.Append(fontFamilyNumbering2);
+
+            fonts1.Append(font1);
+            fonts1.Append(font2);
+            fonts1.Append(font3);
+            fonts1.Append(font4);
+
+            Fills fills1 = new Fills() { Count = (UInt32Value)2U };
+
+            Fill fill1 = new Fill();
+            PatternFill patternFill1 = new PatternFill() { PatternType = PatternValues.None };
+
+            fill1.Append(patternFill1);
+
+            Fill fill2 = new Fill();
+            PatternFill patternFill2 = new PatternFill() { PatternType = PatternValues.Gray125 };
+
+            fill2.Append(patternFill2);
+
+            fills1.Append(fill1);
+            fills1.Append(fill2);
+
+            Borders borders1 = new Borders() { Count = (UInt32Value)1U };
+
+            Border border1 = new Border();
+            LeftBorder leftBorder1 = new LeftBorder();
+            RightBorder rightBorder1 = new RightBorder();
+            TopBorder topBorder1 = new TopBorder();
+            BottomBorder bottomBorder1 = new BottomBorder();
+            DiagonalBorder diagonalBorder1 = new DiagonalBorder();
+
+            border1.Append(leftBorder1);
+            border1.Append(rightBorder1);
+            border1.Append(topBorder1);
+            border1.Append(bottomBorder1);
+            border1.Append(diagonalBorder1);
+
+            borders1.Append(border1);
+
+            CellStyleFormats cellStyleFormats1 = new CellStyleFormats() { Count = (UInt32Value)2U };
+            CellFormat cellFormat1 = new CellFormat() { NumberFormatId = (UInt32Value)0U, FontId = (UInt32Value)0U, FillId = (UInt32Value)0U, BorderId = (UInt32Value)0U };
+            CellFormat cellFormat2 = new CellFormat() { NumberFormatId = (UInt32Value)44U, FontId = (UInt32Value)1U, FillId = (UInt32Value)0U, BorderId = (UInt32Value)0U, ApplyFont = false, ApplyFill = false, ApplyBorder = false, ApplyAlignment = false, ApplyProtection = false };
+
+            cellStyleFormats1.Append(cellFormat1);
+            cellStyleFormats1.Append(cellFormat2);
+
+            // Cell Formats <== cell styleindex is referring to one of these
+            CellFormats cellFormats1 = new CellFormats() { Count = (UInt32Value)5U };
+
+            // StyleIndex = (UInt32Value)0U : Normal Format
+            CellFormat cellFormat3 = new CellFormat() { NumberFormatId = (UInt32Value)0U, FontId = (UInt32Value)0U, FillId = (UInt32Value)0U, BorderId = (UInt32Value)0U, FormatId = (UInt32Value)0U };
+
+            // StyleIndex = (UInt32Value)1U : Currency Format
+            CellFormat cellFormat4 = new CellFormat() { NumberFormatId = (UInt32Value)44U, FontId = (UInt32Value)0U, FillId = (UInt32Value)0U, BorderId = (UInt32Value)0U, FormatId = (UInt32Value)1U, ApplyFont = true };
+
+            // StyleIndex = (UInt32Value)2U : Bold Font
+            CellFormat cellFormat5 = new CellFormat() { NumberFormatId = (UInt32Value)0U, FontId = (UInt32Value)2U, FillId = (UInt32Value)0U, BorderId = (UInt32Value)0U, FormatId = (UInt32Value)0U, ApplyFont = true };
+
+            // StyleIndex = (UInt32Value)3U : Bold Font : Currency Format
+            CellFormat cellFormat6 = new CellFormat() { NumberFormatId = (UInt32Value)44U, FontId = (UInt32Value)2U, FillId = (UInt32Value)0U, BorderId = (UInt32Value)0U, FormatId = (UInt32Value)1U, ApplyFont = true };
+
+            // StyleIndex = (UInt32Value)4U : Italic Font : Currency Format
+            CellFormat cellFormat7 = new CellFormat() { NumberFormatId = (UInt32Value)44U, FontId = (UInt32Value)3U, FillId = (UInt32Value)0U, BorderId = (UInt32Value)0U, FormatId = (UInt32Value)1U, ApplyFont = true };
+
+            cellFormats1.Append(cellFormat3);
+            cellFormats1.Append(cellFormat4);
+            cellFormats1.Append(cellFormat5);
+            cellFormats1.Append(cellFormat6);
+            cellFormats1.Append(cellFormat7);
+
+            CellStyles cellStyles1 = new CellStyles() { Count = (UInt32Value)2U };
+            CellStyle cellStyle1 = new CellStyle() { Name = "Currency", FormatId = (UInt32Value)1U, BuiltinId = (UInt32Value)4U };
+            CellStyle cellStyle2 = new CellStyle() { Name = "Normal", FormatId = (UInt32Value)0U, BuiltinId = (UInt32Value)0U };
+
+            cellStyles1.Append(cellStyle1);
+            cellStyles1.Append(cellStyle2);
+            DifferentialFormats differentialFormats1 = new DifferentialFormats() { Count = (UInt32Value)0U };
+            TableStyles tableStyles1 = new TableStyles() { Count = (UInt32Value)0U, DefaultTableStyle = "TableStyleMedium2", DefaultPivotStyle = "PivotStyleLight16" };
+
+            StylesheetExtensionList stylesheetExtensionList1 = new StylesheetExtensionList();
+
+            StylesheetExtension stylesheetExtension1 = new StylesheetExtension() { Uri = "{EB79DEF2-80B8-43e5-95BD-54CBDDF9020C}" };
+            stylesheetExtension1.AddNamespaceDeclaration("x14", "http://schemas.microsoft.com/office/spreadsheetml/2009/9/main");
+            X14.SlicerStyles slicerStyles1 = new X14.SlicerStyles() { DefaultSlicerStyle = "SlicerStyleLight1" };
+
+            stylesheetExtension1.Append(slicerStyles1);
+
+            StylesheetExtension stylesheetExtension2 = new StylesheetExtension() { Uri = "{9260A510-F301-46a8-8635-F512D64BE5F5}" };
+            stylesheetExtension2.AddNamespaceDeclaration("x15", "http://schemas.microsoft.com/office/spreadsheetml/2010/11/main");
+            X15.TimelineStyles timelineStyles1 = new X15.TimelineStyles() { DefaultTimelineStyle = "TimeSlicerStyleLight1" };
+
+            stylesheetExtension2.Append(timelineStyles1);
+
+            stylesheetExtensionList1.Append(stylesheetExtension1);
+            stylesheetExtensionList1.Append(stylesheetExtension2);
+
+            stylesheet1.Append(numberingFormats1);
+            stylesheet1.Append(fonts1);
+            stylesheet1.Append(fills1);
+            stylesheet1.Append(borders1);
+            stylesheet1.Append(cellStyleFormats1);
+            stylesheet1.Append(cellFormats1);
+            stylesheet1.Append(cellStyles1);
+            stylesheet1.Append(differentialFormats1);
+            stylesheet1.Append(tableStyles1);
+            stylesheet1.Append(stylesheetExtensionList1);
+
+            workbookStylesPart1.Stylesheet = stylesheet1;
+        }
+
+
     }
 }
