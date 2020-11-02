@@ -15,25 +15,27 @@ namespace PayEstimatorUWP
         //Where the tax-free threshold is not claimed in Tax file number declaration – Scale 1
         public List<Coefficients> Schedule1Scale1 = new List<Coefficients>()
         {
-            new Coefficients(72,    0.19,   0.19),
-            new Coefficients(361,   0.2342, 3.213),
-            new Coefficients(932,   0.3477, 44.2476),
-            new Coefficients(1380,  0.345,  41.7311),
-            new Coefficients(3111,  0.39,   103.8657),
-            new Coefficients(3111,  0.47,   352.7888)
+            new Coefficients(88,    0.19,   0.19),
+            new Coefficients(371,   0.2348, 3.9639),
+            new Coefficients(515,   0.2190, -1.9003),
+            new Coefficients(932,   0.3477, 64.4297),
+            new Coefficients(1957,  0.3450, 61.9132),
+            new Coefficients(3111,  0.3900, 150.0093),
+            new Coefficients(3111,  0.4700, 398.9324)
         };
 
         //Where the employee claimed the tax-free threshold in Tax file number declaration – Scale 2
         public List<Coefficients> Schedule1Scale2 = new List<Coefficients>()
         {
-            new Coefficients(355,   0,      0),
-            new Coefficients(422,   0.1900, 67.4635),
-            new Coefficients(528,   0.2900, 109.7327),
-            new Coefficients(711,   0.2100, 67.4635),
-            new Coefficients(1282,  0.3477, 165.4423),
-            new Coefficients(1730,  0.3450, 161.9808),
-            new Coefficients(3461,  0.3900, 239.8654),
-            new Coefficients(3461,  0.4700, 516.7885)
+            new Coefficients(359,   0,      0),
+            new Coefficients(438,   0.1900, 68.3462),
+            new Coefficients(548,   0.2900, 112.1942),
+            new Coefficients(721,   0.2100, 68.3465),
+            new Coefficients(865,   0.2190, 74.8369),
+            new Coefficients(1282,  0.3477, 186.2119),
+            new Coefficients(2307,  0.3450, 182.7504),
+            new Coefficients(3461,  0.3900, 286.5965),
+            new Coefficients(3461,  0.4700, 563.5196)
         };
 
         //Foreign residents – Scale 3
@@ -42,48 +44,66 @@ namespace PayEstimatorUWP
         //Where a tax file number(TFN) was not provided by employee – Scale 4
         readonly List<Coefficients> Schedule1Scale4 = new List<Coefficients>();
 
-        //HELP/SSL/TSL Tax-free threshold claimed or foreign resident
+        //HELP/SSL/TSL Tax-free threshold claimed or foreign resident - Scale 2
         public List<Coefficients> Schedule8Scale1 = new List<Coefficients>()
         {
-            new Coefficients(72,    0.1900, 0.1900),
-            new Coefficients(361,   0.2342, 3.2130),
-            new Coefficients(649,   0.3477, 44.2476),
-            new Coefficients(760,   0.3677, 44.2476),
-            new Coefficients(886,   0.3877, 44.2476),
-            new Coefficients(932,   0.3927, 44.2476),
-            new Coefficients(1013,  0.3900, 41.7311),
-            new Coefficients(1084,  0.3950, 41.7311),
-            new Coefficients(1192,  0.4000, 41.7311),
-            new Coefficients(1320,  0.4050, 41.7311),
-            new Coefficients(1380,  0.4100, 41.7311),
-            new Coefficients(1408,  0.4550, 103.8657),
-            new Coefficients(1584,  0.4600, 103.8657),
-            new Coefficients(1711,  0.4650, 103.8657),
-            new Coefficients(3111,  0.4700, 103.8657),
-            new Coefficients(3111,  0.5500, 352.7888)
+            new Coefficients(88,    0.19,   0.19),
+            new Coefficients(371,   0.2348, 3.9639),
+            new Coefficients(515,   0.219,  -1.9003),
+            new Coefficients(546,   0.3477, 64.4297),
+            new Coefficients(685,   0.3577, 64.4297),
+            new Coefficients(747,   0.3677, 64.4297),
+            new Coefficients(813,   0.3727, 64.4297),
+            new Coefficients(882,   0.3777, 64.4297),
+            new Coefficients(932,   0.3827, 64.4297),
+            new Coefficients(956,   0.38,   61.9132),
+            new Coefficients(1035,  0.385,  61.9132),
+            new Coefficients(1118,  0.39,   61.9132),
+            new Coefficients(1206,  0.395,  61.9132),
+            new Coefficients(1299,  0.4,    61.9132),
+            new Coefficients(1398,  0.405,  61.9132),
+            new Coefficients(1503,  0.41,   61.9132),
+            new Coefficients(1615,  0.415,  61.9132),
+            new Coefficients(1732,  0.42,   61.9132),
+            new Coefficients(1855,  0.425,  61.9132),
+            new Coefficients(1957,  0.43,   61.9132),
+            new Coefficients(1990,  0.475,  150.0093),
+            new Coefficients(2130,  0.48,   150.0093),
+            new Coefficients(2279,  0.485,  150.0093),
+            new Coefficients(3111,  0.49,   150.0093),
+            new Coefficients(3111,  0.57,   398.9324)
         };
 
-        //HELP/SSL/TSL No tax-free threshold claimed
+        //HELP/SSL/TSL No tax-free threshold claimed - Scale 1
         public List<Coefficients> Schedule8Scale2 = new List<Coefficients>()
         {
-            new Coefficients(355,   0,      0),
-            new Coefficients(422,   0.1900, 67.4635),
-            new Coefficients(528,   0.2900, 109.7327),
-            new Coefficients(711,   0.2100, 67.4635),
-            new Coefficients(999,   0.3477, 165.4423),
-            new Coefficients(1110,  0.3677, 165.4423),
-            new Coefficients(1236,  0.3877, 165.4423),
-            new Coefficients(1282,  0.3927, 165.4423),
-            new Coefficients(1363,  0.3900, 161.9808),
-            new Coefficients(1434,  0.3950, 161.9808),
-            new Coefficients(1542,  0.4000, 161.9808),
-            new Coefficients(1670,  0.4050, 161.9808),
-            new Coefficients(1730,  0.4100, 161.9808),
-            new Coefficients(1758,  0.4550, 239.8654),
-            new Coefficients(1934,  0.4600, 239.8654),
-            new Coefficients(2061,  0.4650, 239.8654),
-            new Coefficients(3461,  0.4700, 239.8654),
-            new Coefficients(3461,  0.5500, 516.7885)
+            new Coefficients(359,   0,  0),
+            new Coefficients(438,   0.19,   68.3462),
+            new Coefficients(548,   0.29,   112.1942),
+            new Coefficients(721,   0.21,   68.3465),
+            new Coefficients(865,   0.219,  74.8369),
+            new Coefficients(896,   0.3477, 186.2119),
+            new Coefficients(1035,  0.3577, 186.2119),
+            new Coefficients(1097,  0.3677, 186.2119),
+            new Coefficients(1163,  0.3727, 186.2119),
+            new Coefficients(1232,  0.3777, 186.2119),
+            new Coefficients(1282,  0.3827, 186.2119),
+            new Coefficients(1306,  0.38,   182.7504),
+            new Coefficients(1385,  0.385,  182.7504),
+            new Coefficients(1468,  0.39,   182.7504),
+            new Coefficients(1556,  0.395,  182.7504),
+            new Coefficients(1649,  0.4,    182.7504),
+            new Coefficients(1748,  0.405,  182.7504),
+            new Coefficients(1853,  0.41,   182.7504),
+            new Coefficients(1965,  0.415,  182.7504),
+            new Coefficients(2082,  0.42,   182.7504),
+            new Coefficients(2205,  0.425,  182.7504),
+            new Coefficients(2307,  0.43,   182.7504),
+            new Coefficients(2340,  0.475,  286.5965),
+            new Coefficients(2480,  0.48,   286.5965),
+            new Coefficients(2629,  0.485,  286.5965),
+            new Coefficients(3461,  0.49,   286.5965),
+            new Coefficients(3461,  0.57,   563.5196)
         };
 
         //SFSS Tax-free threshold claimed or foreign resident
@@ -130,7 +150,7 @@ namespace PayEstimatorUWP
         }
     }
 
-    public class TaxFreeThreshold:INotifyPropertyChanged
+    public class TaxFreeThreshold : INotifyPropertyChanged
     {
         public ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
 
