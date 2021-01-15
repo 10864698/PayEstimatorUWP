@@ -70,11 +70,12 @@ namespace PayEstimatorUWP
                 {
                     if (!appointment.AllDay)
                     {
-                        string MealBreak = null;
+                        TimeSpan MealBreak = new TimeSpan(0, 30, 0);
+
                         try
                         {
                             if (appointment.Details.Contains("::NOBREAK"))
-                                MealBreak = "No break";
+                                MealBreak = new TimeSpan(0, 0, 0);
                             if (appointment.Details.Contains("CrewOnCall::LEVEL3") && (appointment.StartTime.Date != startTime.AddDays(-1).Date))
                                 gigspreviouspay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "LEVEL3", MealBreak));
                             if (appointment.Details.Contains("CrewOnCall::VANDVR") && (appointment.StartTime.Date != startTime.AddDays(-1).Date))
@@ -161,11 +162,12 @@ namespace PayEstimatorUWP
                 {
                     if (!appointment.AllDay)
                     {
-                        string MealBreak = null;
+                        TimeSpan MealBreak = new TimeSpan(0, 30, 0);
+
                         try
                         {
                             if (appointment.Details.Contains("::NOBREAK"))
-                                MealBreak = "No break";
+                                MealBreak = new TimeSpan(0, 0, 0);
                             if (appointment.Details.Contains("CrewOnCall::LEVEL3") && (appointment.StartTime.Date != startTime.AddDays(-1).Date))
                                 gigsthispay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "LEVEL3", MealBreak));
                             if (appointment.Details.Contains("CrewOnCall::VANDVR") && (appointment.StartTime.Date != startTime.AddDays(-1).Date))
@@ -251,11 +253,12 @@ namespace PayEstimatorUWP
                 {
                     if (!appointment.AllDay)
                     {
-                        string MealBreak = null;
+                        TimeSpan MealBreak = new TimeSpan(0, 30, 0);
+
                         try
                         {
                             if (appointment.Details.Contains("::NOBREAK"))
-                                MealBreak = "No break";
+                                MealBreak = new TimeSpan(0, 0, 0);
                             if (appointment.Details.Contains("CrewOnCall::LEVEL3") && (appointment.StartTime.Date != startTime.AddDays(-1).Date))
                                 gigsnextpay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "LEVEL3", MealBreak));
                             if (appointment.Details.Contains("CrewOnCall::VANDVR") && (appointment.StartTime.Date != startTime.AddDays(-1).Date))
@@ -342,11 +345,12 @@ namespace PayEstimatorUWP
                 {
                     if (!appointment.AllDay)
                     {
-                        string MealBreak = null;
+                        TimeSpan MealBreak = new TimeSpan(0, 30, 0);
+
                         try
                         {
                             if (appointment.Details.Contains("::NOBREAK"))
-                                MealBreak = "No break";
+                                MealBreak = new TimeSpan(0, 0, 0);
                             if (appointment.Details.Contains("CrewOnCall::LEVEL3") && (appointment.StartTime.Date != startTime.AddDays(-1).Date))
                                 gigsfuturepay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "LEVEL3", MealBreak));
                             if (appointment.Details.Contains("CrewOnCall::VANDVR") && (appointment.StartTime.Date != startTime.AddDays(-1).Date))
@@ -448,7 +452,7 @@ namespace PayEstimatorUWP
         public string VenueName { get; set; }
         public string PH { get; set; }
         public double Hours { get; set; }
-        public string MealBreak { get; set; }
+        public TimeSpan MealBreak { get; set; }
         public string Skill { get; set; }
         public double LEVEL3A { get; set; }
         public double LEVEL3B { get; set; }
@@ -460,7 +464,7 @@ namespace PayEstimatorUWP
         public double MRHRB { get; set; }
         public double MRHRSUN { get; set; }
 
-        public Gig(DateTimeOffset startTime, TimeSpan duration, string subject, string location, string skill, string mealbreak)
+        public Gig(DateTimeOffset startTime, TimeSpan duration, string subject, string location, string skill, TimeSpan mealbreak)
         {
             StartDate = startTime.ToString("D");
             StartTime = startTime.ToString("t");
@@ -492,7 +496,7 @@ namespace PayEstimatorUWP
             {
                 {
                     duration = new TimeSpan(3, 0, 0); //min 3 hour call (M-Sat)
-                    MealBreak = "No break";
+                    MealBreak = new TimeSpan(0, 0, 0);
                 }
             }
 
@@ -500,7 +504,7 @@ namespace PayEstimatorUWP
             {
                 {
                     duration = new TimeSpan(4, 0, 0); //min 4 hour call (Sun)
-                    MealBreak = "No break";
+                    MealBreak = new TimeSpan(0, 0, 0);
                 }
             }
 
@@ -508,30 +512,30 @@ namespace PayEstimatorUWP
             {
                 {
                     duration = new TimeSpan(4, 0, 0); //min 4 hour call (PH)
-                    MealBreak = "No break";
+                    MealBreak = new TimeSpan(0, 0, 0);
                 }
             }
 
-            if ((span > new TimeSpan(5, 30, 0)) && (MealBreak == null))
+            if ((span > new TimeSpan(5, 30, 0)) && (MealBreak != new TimeSpan(0, 0, 0)))
             {
                 duration = duration.Subtract(new TimeSpan(0, 30, 0)); //meal break after 5.5 hours
-                MealBreak = "30 minute break";
+                MealBreak = new TimeSpan(0, 30, 0);
             }
 
-            if ((span > new TimeSpan(11, 30, 0)) && (MealBreak == null))
+            if ((span > new TimeSpan(11, 30, 0)) && (MealBreak != new TimeSpan(0, 0, 0)))
             {
                 duration = duration.Subtract(new TimeSpan(0, 60, 0)); //2 meal breaks after 12 hours
-                MealBreak = "60 minute break";
+                MealBreak = new TimeSpan(1, 0, 0);
             }
 
-            if ((span > new TimeSpan(17, 0, 0)) && (MealBreak == null))
+            if ((span > new TimeSpan(17, 0, 0)) && (MealBreak != new TimeSpan(0, 0, 0)))
             {
                 duration = duration.Subtract(new TimeSpan(0, 90, 0)); //3 meal breaks after 17 hours
-                MealBreak = "90 minute break";
+                MealBreak = new TimeSpan(1, 30, 0);
             }
 
             if (MealBreak == null)
-                MealBreak = "No break";
+                MealBreak = new TimeSpan(0, 30, 0);
 
             while (calcHours < startTime.Add(duration))
             {
@@ -765,11 +769,6 @@ namespace PayEstimatorUWP
         {
             throw new NotImplementedException();
         }
-
-        //public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        //{
-        //    throw new NotSupportedException();
-        //}
     }
 
     public class DoubleToCurrencyFormatStringConverter : IValueConverter
@@ -790,10 +789,39 @@ namespace PayEstimatorUWP
         {
             throw new NotImplementedException();
         }
+    }
 
-        //public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        //{
-        //    throw new NotSupportedException();
-        //}
+    public class TimeSpanToStringConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+
+            if (value == null)
+                return null;
+
+            if (value.GetType() == typeof(TimeSpan))
+            {
+                TimeSpan timeSpan = (TimeSpan)value;
+
+                var hours = timeSpan.Hours;
+                var minutes = timeSpan.Minutes;
+
+                if (hours > 0) 
+                    return String.Format("{0} hour {1} minutes break", hours, minutes);
+
+                if ((hours == 0) && (minutes > 0)) 
+                    return String.Format("{0} minutes break", minutes);
+
+                if ((hours == 0) && (minutes == 0)) 
+                    return String.Format("No break");
+            }
+
+            return null;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

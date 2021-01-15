@@ -139,11 +139,12 @@ namespace PayEstimatorUWP
                             {
                                 if (!appointment.AllDay)
                                 {
-                                    string MealBreak = null;
+                                    TimeSpan MealBreak = new TimeSpan(0, 30, 0);
+
                                     try
                                     {
                                         if (appointment.Details.Contains("::NOBREAK"))
-                                            MealBreak = "No break";
+                                            MealBreak = new TimeSpan(0, 0, 0);
                                         if (appointment.Details.Contains("CrewOnCall::LEVEL3") && (appointment.StartTime.Date != startTime.AddDays(-1).Date))
                                             gigsthispay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "LEVEL3", MealBreak));
                                         if (appointment.Details.Contains("CrewOnCall::VANDVR") && (appointment.StartTime.Date != startTime.AddDays(-1).Date))
@@ -271,7 +272,7 @@ namespace PayEstimatorUWP
                             Cell cell16 = new Cell
                             {
                                 DataType = CellValues.String,
-                                CellValue = new CellValue(gig.MealBreak)
+                                CellValue = new CellValue(Convert.ToString(gig.MealBreak))
                             };
                             newRow.AppendChild(cell16);
 

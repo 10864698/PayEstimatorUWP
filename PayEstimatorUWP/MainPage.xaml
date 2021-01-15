@@ -11,6 +11,7 @@
     <Page.Resources>
         <local:DoubleToStringConverter x:Key="DoubleToStringConverter" />
         <local:DoubleToCurrencyFormatStringConverter x:Key="DoubleToCurrencyFormatStringConverter" />
+        <local:TimeSpanToStringConverter x:Key="TimeSpanToStringConverter" />
     </Page.Resources>
 
     <Pivot x:Name="rootPivot" Title="Pay Estimater">
@@ -63,7 +64,9 @@
                                         <TextBlock Text="{Binding Hours}"/>
                                         <TextBlock Text=" Hrs)"/>
                                     </StackPanel>
-                                    <TextBlock Text="{Binding MealBreak}"/>
+                                    <TextBlock x:Name="tbthisMealBreak">
+                                        <Run Text="{Binding Path=MealBreak, Converter={StaticResource TimeSpanToStringConverter}}"/>
+                                    </TextBlock>
                                     <TextBlock Text="{Binding ClientName}"/>
                                     <TextBlock Text="{Binding VenueName}"/>
                                     <TextBlock Text="{Binding Skill}"/>
@@ -122,7 +125,9 @@
                                         <TextBlock Text="{Binding Hours}"/>
                                         <TextBlock Text=" Hrs)"/>
                                     </StackPanel>
-                                    <TextBlock Text="{Binding MealBreak}"/>
+                                    <TextBlock x:Name="tbpreviousMealBreak">
+                                        <Run Text="{Binding Path=MealBreak, Converter={StaticResource TimeSpanToStringConverter}}"/>
+                                    </TextBlock>
                                     <TextBlock Text="{Binding ClientName}"/>
                                     <TextBlock Text="{Binding VenueName}"/>
                                     <TextBlock Text="{Binding Skill}"/>
@@ -181,7 +186,9 @@
                                         <TextBlock Text="{Binding Hours}"/>
                                         <TextBlock Text=" Hrs)"/>
                                     </StackPanel>
-                                    <TextBlock Text="{Binding MealBreak}"/>
+                                    <TextBlock x:Name="tbnextMealBreak">
+                                        <Run Text="{Binding Path=MealBreak, Converter={StaticResource TimeSpanToStringConverter}}"/>
+                                    </TextBlock>
                                     <TextBlock Text="{Binding ClientName}"/>
                                     <TextBlock Text="{Binding VenueName}"/>
                                     <TextBlock Text="{Binding Skill}"/>
@@ -240,7 +247,9 @@
                                         <TextBlock Text="{Binding Hours}"/>
                                         <TextBlock Text=" Hrs)"/>
                                     </StackPanel>
-                                    <TextBlock Text="{Binding MealBreak}"/>
+                                    <TextBlock x:Name="tbfutureMealBreak">
+                                        <Run Text="{Binding Path=MealBreak, Converter={StaticResource TimeSpanToStringConverter}}"/>
+                                    </TextBlock>
                                     <TextBlock Text="{Binding ClientName}"/>
                                     <TextBlock Text="{Binding VenueName}"/>
                                     <TextBlock Text="{Binding Skill}"/>
