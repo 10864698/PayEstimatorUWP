@@ -15,7 +15,13 @@
     </Page.Resources>
 
     <Pivot x:Name="rootPivot" Title="Pay Estimater">
-        <PivotItem Header="Current Pay">
+        <PivotItem>
+            <PivotItem.Header>
+                <TextBlock x:Name="tbthisWE">
+                <Run Text="Current Pay "/>
+                <Run Text="{Binding Path=WeekEnding}"/>
+                </TextBlock>
+            </PivotItem.Header>
 
             <ScrollViewer HorizontalScrollMode="Enabled" HorizontalScrollBarVisibility="Visible">
 
@@ -79,7 +85,13 @@
             </ScrollViewer>
         </PivotItem>
 
-        <PivotItem Header="Previous Pay">
+        <PivotItem>
+            <PivotItem.Header>
+                <TextBlock x:Name="tbpreviousWE">
+                <Run Text="Previous Pay "/>
+                <Run Text="{Binding Path=WeekEnding}"/>
+                </TextBlock>
+            </PivotItem.Header>
             <ScrollViewer HorizontalScrollMode="Enabled" HorizontalScrollBarVisibility="Visible">
 
                 <StackPanel Orientation="Vertical">
@@ -140,7 +152,13 @@
             </ScrollViewer>
         </PivotItem>
 
-        <PivotItem Header="Next Pay">
+        <PivotItem>
+            <PivotItem.Header>
+                <TextBlock x:Name="tbnextWE">
+                <Run Text="Next Pay "/>
+                <Run Text="{Binding Path=WeekEnding}"/>
+                </TextBlock>
+            </PivotItem.Header>
             <ScrollViewer HorizontalScrollMode="Enabled" HorizontalScrollBarVisibility="Visible">
 
                 <StackPanel Orientation="Vertical">
@@ -201,7 +219,13 @@
             </ScrollViewer>
         </PivotItem>
 
-        <PivotItem Header="Future Pay">
+        <PivotItem>
+            <PivotItem.Header>
+                <TextBlock x:Name="tbfutureWE">
+                <Run Text="Future Pay "/>
+                <!--<Run Text="{Binding Path=WeekEnding}"/>-->
+                </TextBlock>
+            </PivotItem.Header>
             <ScrollViewer HorizontalScrollMode="Enabled" HorizontalScrollBarVisibility="Visible">
 
                 <StackPanel Orientation="Vertical">

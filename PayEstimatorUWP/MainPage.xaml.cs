@@ -65,23 +65,24 @@ namespace PayEstimatorUWP
             if (appointments.Count > 0)
             {
                 List<Gig> gigspreviouspay = new List<Gig>();
-
+                
                 foreach (var appointment in appointments)
                 {
                     if (!appointment.AllDay)
                     {
-                        TimeSpan MealBreak = new TimeSpan(0, 30, 0);
+                        bool mealBreak = true;
+
+                        if (appointment.Details.Contains("::NOBREAK"))
+                            mealBreak = false;
 
                         try
                         {
-                            if (appointment.Details.Contains("::NOBREAK"))
-                                MealBreak = new TimeSpan(0, 0, 0);
                             if (appointment.Details.Contains("CrewOnCall::LEVEL3") && (appointment.StartTime.Date != startTime.AddDays(-1).Date))
-                                gigspreviouspay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "LEVEL3", MealBreak));
+                                gigspreviouspay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "LEVEL3", mealBreak));
                             if (appointment.Details.Contains("CrewOnCall::VANDVR") && (appointment.StartTime.Date != startTime.AddDays(-1).Date))
-                                gigspreviouspay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "VANDVR", MealBreak));
+                                gigspreviouspay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "VANDVR", mealBreak));
                             if (appointment.Details.Contains("CrewOnCall::MR/HR") && (appointment.StartTime.Date != startTime.AddDays(-1).Date))
-                                gigspreviouspay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "MR/HR", MealBreak));
+                                gigspreviouspay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "MR/HR", mealBreak));
                         }
                         catch (ArgumentOutOfRangeException)
                         {
@@ -91,6 +92,9 @@ namespace PayEstimatorUWP
                 }
 
                 lvpreviousGigs.ItemsSource = gigspreviouspay;
+
+                WE weekEnding = new WE(startTime);
+                tbpreviousWE.DataContext = weekEnding;
 
                 Hours hours = new Hours(gigspreviouspay);
                 tbpreviousHours.DataContext = hours;
@@ -106,19 +110,22 @@ namespace PayEstimatorUWP
             }
             else
             {
-                List<Gig> gigsnextpay = new List<Gig>();
-                lvpreviousGigs.ItemsSource = gigsnextpay;
+                List<Gig> gigspreviouspay = new List<Gig>();
+                lvpreviousGigs.ItemsSource = gigspreviouspay;
 
-                Hours hours = new Hours(gigsnextpay);
+                WE weekEnding = new WE(startTime);
+                tbpreviousWE.DataContext = weekEnding;
+
+                Hours hours = new Hours(gigspreviouspay);
                 tbpreviousHours.DataContext = hours;
 
-                Gross gross = new Gross(gigsnextpay);
+                Gross gross = new Gross(gigspreviouspay);
                 tbpreviousGross.DataContext = gross;
 
                 Net net = new Net(gross.GrossAmount);
                 tbpreviousNet.DataContext = net;
 
-                Shifts shifts = new Shifts(gigsnextpay);
+                Shifts shifts = new Shifts(gigspreviouspay);
                 tbpreviousShifts.DataContext = shifts;
 
             }
@@ -137,7 +144,7 @@ namespace PayEstimatorUWP
             DateTimeOffset thisPayStart = startingDate.AddDays(-14);
             var timeZoneOffset = TimeZoneInfo.Local.GetUtcOffset(DateTime.Now);
             var startTime = new DateTimeOffset(thisPayStart.Year, thisPayStart.Month, thisPayStart.Day, 0, 0, 0, timeZoneOffset);
-
+            
             TimeSpan duration = TimeSpan.FromDays(7);
 
             FindAppointmentsOptions options = new FindAppointmentsOptions
@@ -157,23 +164,24 @@ namespace PayEstimatorUWP
             if (appointments.Count > 0)
             {
                 List<Gig> gigsthispay = new List<Gig>();
-
+                
                 foreach (var appointment in appointments)
                 {
                     if (!appointment.AllDay)
                     {
-                        TimeSpan MealBreak = new TimeSpan(0, 30, 0);
+                        bool mealBreak = true;
+
+                        if (appointment.Details.Contains("::NOBREAK"))
+                            mealBreak = false;
 
                         try
                         {
-                            if (appointment.Details.Contains("::NOBREAK"))
-                                MealBreak = new TimeSpan(0, 0, 0);
                             if (appointment.Details.Contains("CrewOnCall::LEVEL3") && (appointment.StartTime.Date != startTime.AddDays(-1).Date))
-                                gigsthispay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "LEVEL3", MealBreak));
+                                gigsthispay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "LEVEL3", mealBreak));
                             if (appointment.Details.Contains("CrewOnCall::VANDVR") && (appointment.StartTime.Date != startTime.AddDays(-1).Date))
-                                gigsthispay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "VANDVR", MealBreak));
+                                gigsthispay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "VANDVR", mealBreak));
                             if (appointment.Details.Contains("CrewOnCall::MR/HR") && (appointment.StartTime.Date != startTime.AddDays(-1).Date))
-                                gigsthispay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "MR/HR", MealBreak));
+                                gigsthispay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "MR/HR", mealBreak));
                         }
                         catch (ArgumentOutOfRangeException)
                         {
@@ -183,6 +191,9 @@ namespace PayEstimatorUWP
                 }
 
                 lvthisGigs.ItemsSource = gigsthispay;
+
+                WE weekEnding = new WE(startTime);
+                tbthisWE.DataContext = weekEnding;
 
                 Hours hours = new Hours(gigsthispay);
                 tbthisHours.DataContext = hours;
@@ -200,6 +211,9 @@ namespace PayEstimatorUWP
             {
                 List<Gig> gigsthispay = new List<Gig>();
                 lvthisGigs.ItemsSource = gigsthispay;
+
+                WE weekEnding = new WE(startTime);
+                tbthisWE.DataContext = weekEnding;
 
                 Hours hours = new Hours(gigsthispay);
                 tbthisHours.DataContext = hours;
@@ -248,23 +262,24 @@ namespace PayEstimatorUWP
             if (appointments.Count > 0)
             {
                 List<Gig> gigsnextpay = new List<Gig>();
-
+                
                 foreach (var appointment in appointments)
                 {
                     if (!appointment.AllDay)
                     {
-                        TimeSpan MealBreak = new TimeSpan(0, 30, 0);
+                        bool mealBreak = true;
+
+                        if (appointment.Details.Contains("::NOBREAK"))
+                            mealBreak = false;
 
                         try
                         {
-                            if (appointment.Details.Contains("::NOBREAK"))
-                                MealBreak = new TimeSpan(0, 0, 0);
                             if (appointment.Details.Contains("CrewOnCall::LEVEL3") && (appointment.StartTime.Date != startTime.AddDays(-1).Date))
-                                gigsnextpay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "LEVEL3", MealBreak));
+                                gigsnextpay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "LEVEL3", mealBreak));
                             if (appointment.Details.Contains("CrewOnCall::VANDVR") && (appointment.StartTime.Date != startTime.AddDays(-1).Date))
-                                gigsnextpay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "VANDVR", MealBreak));
+                                gigsnextpay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "VANDVR", mealBreak));
                             if (appointment.Details.Contains("CrewOnCall::MR/HR") && (appointment.StartTime.Date != startTime.AddDays(-1).Date))
-                                gigsnextpay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "MR/HR", MealBreak));
+                                gigsnextpay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "MR/HR", mealBreak));
                         }
                         catch (ArgumentOutOfRangeException)
                         {
@@ -274,6 +289,9 @@ namespace PayEstimatorUWP
                 }
 
                 lvnextGigs.ItemsSource = gigsnextpay;
+
+                WE weekEnding = new WE(startTime);
+                tbnextWE.DataContext = weekEnding;
 
                 Hours hours = new Hours(gigsnextpay);
                 tbnextHours.DataContext = hours;
@@ -291,6 +309,9 @@ namespace PayEstimatorUWP
             {
                 List<Gig> gigsnextpay = new List<Gig>();
                 lvnextGigs.ItemsSource = gigsnextpay;
+
+                WE weekEnding = new WE(startTime);
+                tbnextWE.DataContext = weekEnding;
 
                 Hours hours = new Hours(gigsnextpay);
                 tbnextHours.DataContext = hours;
@@ -340,23 +361,23 @@ namespace PayEstimatorUWP
             if (appointments.Count > 0)
             {
                 List<Gig> gigsfuturepay = new List<Gig>();
-
                 foreach (var appointment in appointments)
                 {
                     if (!appointment.AllDay)
                     {
-                        TimeSpan MealBreak = new TimeSpan(0, 30, 0);
+                        bool mealBreak = true;
 
+                        if (appointment.Details.Contains("::NOBREAK"))
+                            mealBreak = false;
+                        
                         try
                         {
-                            if (appointment.Details.Contains("::NOBREAK"))
-                                MealBreak = new TimeSpan(0, 0, 0);
                             if (appointment.Details.Contains("CrewOnCall::LEVEL3") && (appointment.StartTime.Date != startTime.AddDays(-1).Date))
-                                gigsfuturepay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "LEVEL3", MealBreak));
+                                gigsfuturepay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "LEVEL3", mealBreak));
                             if (appointment.Details.Contains("CrewOnCall::VANDVR") && (appointment.StartTime.Date != startTime.AddDays(-1).Date))
-                                gigsfuturepay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "VANDVR", MealBreak));
+                                gigsfuturepay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "VANDVR", mealBreak));
                             if (appointment.Details.Contains("CrewOnCall::MR/HR") && (appointment.StartTime.Date != startTime.AddDays(-1).Date))
-                                gigsfuturepay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "MR/HR", MealBreak));
+                                gigsfuturepay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "MR/HR", mealBreak));
                         }
                         catch (ArgumentOutOfRangeException)
                         {
@@ -366,6 +387,9 @@ namespace PayEstimatorUWP
                 }
 
                 lvfutureGigs.ItemsSource = gigsfuturepay;
+
+                WE weekEnding = new WE(startTime);
+                tbfutureWE.DataContext = weekEnding;
 
                 Hours hours = new Hours(gigsfuturepay);
                 tbfutureHours.DataContext = hours;
@@ -383,6 +407,9 @@ namespace PayEstimatorUWP
             {
                 List<Gig> gigsnextpay = new List<Gig>();
                 lvfutureGigs.ItemsSource = gigsnextpay;
+
+                WE weekEnding = new WE(startTime);
+                tbfutureWE.DataContext = weekEnding;
 
                 Hours hours = new Hours(gigsnextpay);
                 tbfutureHours.DataContext = hours;
@@ -437,8 +464,19 @@ namespace PayEstimatorUWP
         {
             if (sender is Button)
             {
+                DayOfWeek weekStart = DayOfWeek.Monday;
+                DateTimeOffset startingDate = DateTimeOffset.Now;
+
+                while (startingDate.DayOfWeek != weekStart)
+                    startingDate = startingDate.AddDays(-1);
+
+                DateTimeOffset thisPayStart = startingDate.AddDays(-14);
+                var timeZoneOffset = TimeZoneInfo.Local.GetUtcOffset(DateTime.Now);
+                var startTime = new DateTimeOffset(thisPayStart.Year, thisPayStart.Month, thisPayStart.Day, 0, 0, 0, timeZoneOffset);
+                var weekEnding = startTime.AddDays(6);
+
                 var exportSpreadsheetWorkbook = new ExportSpreadsheetWorkbookFile();
-                exportSpreadsheetWorkbook.CreatSpreadsheetWorkbookFile();
+                exportSpreadsheetWorkbook.CreateSpreadsheetWorkbookFile(weekEnding.ToString("ddMMyy"));
             }
         }
     }
@@ -464,7 +502,7 @@ namespace PayEstimatorUWP
         public double MRHRB { get; set; }
         public double MRHRSUN { get; set; }
 
-        public Gig(DateTimeOffset startTime, TimeSpan duration, string subject, string location, string skill, TimeSpan mealbreak)
+        public Gig(DateTimeOffset startTime, TimeSpan duration, string subject, string location, string skill, bool mealbreak)
         {
             StartDate = startTime.ToString("D");
             StartTime = startTime.ToString("t");
@@ -473,7 +511,7 @@ namespace PayEstimatorUWP
             VenueName = location;
             PH = "";
             Hours = 0;
-            MealBreak = mealbreak;
+            MealBreak = new TimeSpan(0, 0, 0);
             Skill = skill;
             LEVEL3A = 0;
             LEVEL3B = 0;
@@ -516,27 +554,24 @@ namespace PayEstimatorUWP
                 }
             }
 
-            if ((span > new TimeSpan(5, 30, 0)) && (MealBreak != new TimeSpan(0, 0, 0)))
+            if ((span > new TimeSpan(5, 30, 0)) && (mealbreak == true))
             {
                 duration = duration.Subtract(new TimeSpan(0, 30, 0)); //meal break after 5.5 hours
                 MealBreak = new TimeSpan(0, 30, 0);
             }
 
-            if ((span > new TimeSpan(11, 30, 0)) && (MealBreak != new TimeSpan(0, 0, 0)))
+            if ((span > new TimeSpan(11, 30, 0)) && (mealbreak == true))
             {
                 duration = duration.Subtract(new TimeSpan(0, 60, 0)); //2 meal breaks after 12 hours
                 MealBreak = new TimeSpan(1, 0, 0);
             }
 
-            if ((span > new TimeSpan(17, 0, 0)) && (MealBreak != new TimeSpan(0, 0, 0)))
+            if ((span > new TimeSpan(17, 0, 0)) && (mealbreak == true))
             {
                 duration = duration.Subtract(new TimeSpan(0, 90, 0)); //3 meal breaks after 17 hours
                 MealBreak = new TimeSpan(1, 30, 0);
             }
-
-            if (MealBreak == null)
-                MealBreak = new TimeSpan(0, 30, 0);
-
+            
             while (calcHours < startTime.Add(duration))
             {
                 if ((calcHours.DayOfWeek == DayOfWeek.Sunday) || (publicHoliday.PublicHoliday == true) || (((startTime.DayOfWeek == DayOfWeek.Sunday) || publicHoliday.PublicHoliday == true) && calcHours < startTime.AddHours(4)))
@@ -569,10 +604,37 @@ namespace PayEstimatorUWP
                     if (Skill == "MR/HR")
                         MRHRA += 0.25;
                 }
-
-
+                
                 calcHours = calcHours.AddMinutes(15);
             }
+        }
+    }
+
+    public class WE : INotifyPropertyChanged
+    {
+        private string we;
+
+        public string WeekEnding
+        {
+            get { return we; }
+            set
+            {
+                we = value;
+                OnPropertyChanged("WeekEnding");
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public void OnPropertyChanged(string PropertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
+        }
+
+        public WE(DateTimeOffset startTime)
+        {
+            var weekEnding = startTime.AddDays(6);
+            WeekEnding = "WE" + weekEnding.ToString("ddMMyy");
         }
     }
 
@@ -750,7 +812,7 @@ namespace PayEstimatorUWP
                 TaxAmount = coefficients.a * (GrossAmount + 0.99) - coefficients.b;
             }
 
-            NetAmount = Math.Ceiling(GrossAmount - TaxAmount);
+            NetAmount = Math.Floor(GrossAmount - TaxAmount);
         }
     }
 

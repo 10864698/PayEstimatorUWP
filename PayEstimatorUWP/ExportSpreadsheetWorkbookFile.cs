@@ -18,9 +18,10 @@ namespace PayEstimatorUWP
 {
     class ExportSpreadsheetWorkbookFile
     {
-        public async void CreatSpreadsheetWorkbookFile()
+        public async void CreateSpreadsheetWorkbookFile(string filename)
         {
             Stream stream;
+
 
             var savePicker = new Windows.Storage.Pickers.FileSavePicker
             {
@@ -30,7 +31,7 @@ namespace PayEstimatorUWP
             // Dropdown of file types the user can save the file as
             savePicker.FileTypeChoices.Add("Excel", new List<string>() { ".xlsx" });
             // Default file name if the user does not type one in or select a file to replace
-            savePicker.SuggestedFileName = "CREWONCALL";
+            savePicker.SuggestedFileName = "CREWONCALL" + filename;
 
             Windows.Storage.StorageFile file = await savePicker.PickSaveFileAsync();
 
@@ -115,7 +116,7 @@ namespace PayEstimatorUWP
                         DateTimeOffset thisPayStart = startingDate.AddDays(-14);
                         var timeZoneOffset = TimeZoneInfo.Local.GetUtcOffset(DateTime.Now);
                         var startTime = new DateTimeOffset(thisPayStart.Year, thisPayStart.Month, thisPayStart.Day, 0, 0, 0, timeZoneOffset);
-
+                        
                         TimeSpan duration = TimeSpan.FromDays(7);
 
                         FindAppointmentsOptions options = new FindAppointmentsOptions
@@ -131,26 +132,28 @@ namespace PayEstimatorUWP
                         options.FetchProperties.Add(AppointmentProperties.DetailsKind);
 
                         IReadOnlyList<Appointment> appointments = await appointmentStore.FindAppointmentsAsync(startTime, duration, options);
+                        
                         List<Gig> gigsthispay = new List<Gig>();
-
+                        
                         if (appointments.Count > 0)
                         {
                             foreach (var appointment in appointments)
                             {
                                 if (!appointment.AllDay)
                                 {
-                                    TimeSpan MealBreak = new TimeSpan(0, 30, 0);
+                                    bool mealBreak = true;
+
+                                    if (appointment.Details.Contains("::NOBREAK"))
+                                        mealBreak = false;
 
                                     try
                                     {
-                                        if (appointment.Details.Contains("::NOBREAK"))
-                                            MealBreak = new TimeSpan(0, 0, 0);
                                         if (appointment.Details.Contains("CrewOnCall::LEVEL3") && (appointment.StartTime.Date != startTime.AddDays(-1).Date))
-                                            gigsthispay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "LEVEL3", MealBreak));
+                                            gigsthispay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "LEVEL3", mealBreak));
                                         if (appointment.Details.Contains("CrewOnCall::VANDVR") && (appointment.StartTime.Date != startTime.AddDays(-1).Date))
-                                            gigsthispay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "VANDVR", MealBreak));
+                                            gigsthispay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "VANDVR", mealBreak));
                                         if (appointment.Details.Contains("CrewOnCall::MR/HR") && (appointment.StartTime.Date != startTime.AddDays(-1).Date))
-                                            gigsthispay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "MR/HR", MealBreak));
+                                            gigsthispay.Add(new Gig(appointment.StartTime, appointment.Duration, appointment.Subject, appointment.Location, "MR/HR", mealBreak));
                                     }
                                     catch (ArgumentOutOfRangeException)
                                     {
