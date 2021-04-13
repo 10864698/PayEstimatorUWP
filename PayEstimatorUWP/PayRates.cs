@@ -8,7 +8,7 @@ namespace PayEstimatorUWP
         public static double LEVEL3BRATE = 38.38; // Update?
         public static double LEVEL3SUNRATE = 48.65; // Update?
         public static double VANDVRARATE = 29.00;
-        public static double VANDVRBRATE = 39.00;
+        public static double VANDVRBRATE = 40.00;
         public static double VANDVRSUNRATE = 52.00;
         public static double MRHRAARATE = 32.00;
         public static double MRHRABRATE = 42.00;

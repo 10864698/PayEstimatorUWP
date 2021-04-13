@@ -5,11 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Windows.ApplicationModel.Appointments;
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
 using Border = DocumentFormat.OpenXml.Spreadsheet.Border;
 using X14 = DocumentFormat.OpenXml.Office2010.Excel;
 using X15 = DocumentFormat.OpenXml.Office2013.Excel;
@@ -116,7 +112,7 @@ namespace PayEstimatorUWP
                         DateTimeOffset thisPayStart = startingDate.AddDays(-14);
                         var timeZoneOffset = TimeZoneInfo.Local.GetUtcOffset(DateTime.Now);
                         var startTime = new DateTimeOffset(thisPayStart.Year, thisPayStart.Month, thisPayStart.Day, 0, 0, 0, timeZoneOffset);
-                        
+
                         TimeSpan duration = TimeSpan.FromDays(7);
 
                         FindAppointmentsOptions options = new FindAppointmentsOptions
@@ -132,9 +128,9 @@ namespace PayEstimatorUWP
                         options.FetchProperties.Add(AppointmentProperties.DetailsKind);
 
                         IReadOnlyList<Appointment> appointments = await appointmentStore.FindAppointmentsAsync(startTime, duration, options);
-                        
+
                         List<Gig> gigsthispay = new List<Gig>();
-                        
+
                         if (appointments.Count > 0)
                         {
                             foreach (var appointment in appointments)
