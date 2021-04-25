@@ -562,13 +562,13 @@ namespace PayEstimatorUWP
 
             if ((span > new TimeSpan(11, 30, 0)) && (mealbreak == true))
             {
-                duration = duration.Subtract(new TimeSpan(0, 60, 0)); //2 meal breaks after 12 hours
+                duration = duration.Subtract(new TimeSpan(0, 30, 0)); //2 meal breaks after 11.5 hours
                 MealBreak = new TimeSpan(1, 0, 0);
             }
 
-            if ((span > new TimeSpan(17, 0, 0)) && (mealbreak == true))
+            if ((span > new TimeSpan(17, 30, 0)) && (mealbreak == true))
             {
-                duration = duration.Subtract(new TimeSpan(0, 90, 0)); //3 meal breaks after 17 hours
+                duration = duration.Subtract(new TimeSpan(0, 30, 0)); //3 meal breaks after 17.5 hours
                 MealBreak = new TimeSpan(1, 30, 0);
             }
             
@@ -868,8 +868,11 @@ namespace PayEstimatorUWP
                 var hours = timeSpan.Hours;
                 var minutes = timeSpan.Minutes;
 
-                if (hours > 0) 
+                if ((hours > 0) && (minutes > 0))
                     return String.Format("{0} hour {1} minutes break", hours, minutes);
+
+                if ((hours > 0) && (minutes == 0))
+                    return String.Format("{0} hour break", hours);
 
                 if ((hours == 0) && (minutes > 0)) 
                     return String.Format("{0} minutes break", minutes);
